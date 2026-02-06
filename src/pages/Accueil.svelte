@@ -84,49 +84,106 @@
 </script>
 
 <div class="page">
-  <Header title="Suivi Client" />
+  <Header title="Tableau de bord" />
 
   <main class="main-content">
     {#if loading}
-      <div class="loading">Chargement...</div>
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <span>Chargement...</span>
+      </div>
     {:else}
+      <!-- Stats summary -->
+      <div class="stats-bar">
+        <div class="stat-item">
+          <span class="stat-number">{interventionsEnAttente.length}</span>
+          <span class="stat-label">En attente</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">{interventionsEnCours.length}</span>
+          <span class="stat-label">En cours</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">{interventionsEnAttente.length + interventionsEnCours.length}</span>
+          <span class="stat-label">Total actif</span>
+        </div>
+      </div>
+
+      <!-- En attente section -->
       <section class="interventions-section">
         <button class="section-header" onclick={() => enAttenteExpanded = !enAttenteExpanded}>
-          <h2 class="section-title">
-            En attente
-            {#if interventionsEnAttente.length > 0}
-              <span class="count">{interventionsEnAttente.length}</span>
-            {/if}
-          </h2>
+          <div class="section-header-left">
+            <div class="section-icon waiting">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="section-title-group">
+              <h2 class="section-title">En attente</h2>
+              <span class="section-subtitle">{interventionsEnAttente.length} intervention{interventionsEnAttente.length > 1 ? 's' : ''}</span>
+            </div>
+          </div>
           <svg class="chevron" class:expanded={enAttenteExpanded} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </button>
         {#if enAttenteExpanded}
           {#if interventionsEnAttente.length === 0}
-            <div class="empty-message">Aucune intervention en attente</div>
+            <div class="empty-state">
+              <div class="empty-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+              <p>Aucune intervention en attente</p>
+            </div>
           {:else}
             <div class="interventions-list">
               {#each interventionsEnAttente as intervention (intervention.id)}
                 {@const info = getVehiculeInfo(intervention.vehiculeId)}
                 <button class="intervention-card" onclick={() => handleInterventionClick(intervention)}>
-                  <div class="card-header">
-                    <span class="type-badge type-{intervention.type}">{getTypeLabel(intervention.type)}</span>
-                    <span class="date">{formatDate(intervention.date)}</span>
+                  <div class="card-left">
+                    <div class="type-indicator type-{intervention.type}"></div>
                   </div>
-                  <p class="description">{intervention.description}</p>
-                  {#if info.vehicule}
-                    <div class="vehicule-info">
-                      <span class="vehicule">{info.vehicule.marque} {info.vehicule.modele}</span>
-                      <span class="immat">{info.vehicule.immatriculation}</span>
+                  <div class="card-content">
+                    <div class="card-header">
+                      <span class="type-badge type-{intervention.type}">{getTypeLabel(intervention.type)}</span>
+                      <span class="date">{formatDate(intervention.date)}</span>
                     </div>
-                  {/if}
-                  {#if info.client}
-                    <div class="client-info">{info.client.prenom} {info.client.nom}</div>
-                  {/if}
-                  {#if intervention.cout}
-                    <div class="cout">{formatPrice(intervention.cout)}</div>
-                  {/if}
+                    <p class="description">{intervention.description}</p>
+                    {#if info.vehicule}
+                      <div class="vehicule-row">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                          <circle cx="6.5" cy="16.5" r="2.5"/>
+                          <circle cx="16.5" cy="16.5" r="2.5"/>
+                        </svg>
+                        <span class="vehicule">{info.vehicule.marque} {info.vehicule.modele}</span>
+                        <span class="immat">{info.vehicule.immatriculation}</span>
+                      </div>
+                    {/if}
+                    {#if info.client}
+                      <div class="client-row">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                          <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <span>{info.client.prenom} {info.client.nom}</span>
+                      </div>
+                    {/if}
+                  </div>
+                  <div class="card-right">
+                    {#if intervention.cout}
+                      <div class="cout">{formatPrice(intervention.cout)}</div>
+                    {/if}
+                    <svg class="card-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                  </div>
                 </button>
               {/each}
             </div>
@@ -134,43 +191,77 @@
         {/if}
       </section>
 
+      <!-- En cours section -->
       <section class="interventions-section">
-        <button class="section-header" onclick={() => enCoursExpanded = !enCoursExpanded}>
-          <h2 class="section-title">
-            En cours
-            {#if interventionsEnCours.length > 0}
-              <span class="count">{interventionsEnCours.length}</span>
-            {/if}
-          </h2>
+        <button class="section-header ongoing" onclick={() => enCoursExpanded = !enCoursExpanded}>
+          <div class="section-header-left">
+            <div class="section-icon ongoing">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+              </svg>
+            </div>
+            <div class="section-title-group">
+              <h2 class="section-title">En cours</h2>
+              <span class="section-subtitle">{interventionsEnCours.length} intervention{interventionsEnCours.length > 1 ? 's' : ''}</span>
+            </div>
+          </div>
           <svg class="chevron" class:expanded={enCoursExpanded} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </button>
         {#if enCoursExpanded}
           {#if interventionsEnCours.length === 0}
-            <div class="empty-message">Aucune intervention en cours</div>
+            <div class="empty-state">
+              <div class="empty-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+              </div>
+              <p>Aucune intervention en cours</p>
+            </div>
           {:else}
             <div class="interventions-list">
               {#each interventionsEnCours as intervention (intervention.id)}
                 {@const info = getVehiculeInfo(intervention.vehiculeId)}
                 <button class="intervention-card" onclick={() => handleInterventionClick(intervention)}>
-                  <div class="card-header">
-                    <span class="type-badge type-{intervention.type}">{getTypeLabel(intervention.type)}</span>
-                    <span class="date">{formatDate(intervention.date)}</span>
+                  <div class="card-left">
+                    <div class="type-indicator type-{intervention.type}"></div>
                   </div>
-                  <p class="description">{intervention.description}</p>
-                  {#if info.vehicule}
-                    <div class="vehicule-info">
-                      <span class="vehicule">{info.vehicule.marque} {info.vehicule.modele}</span>
-                      <span class="immat">{info.vehicule.immatriculation}</span>
+                  <div class="card-content">
+                    <div class="card-header">
+                      <span class="type-badge type-{intervention.type}">{getTypeLabel(intervention.type)}</span>
+                      <span class="date">{formatDate(intervention.date)}</span>
                     </div>
-                  {/if}
-                  {#if info.client}
-                    <div class="client-info">{info.client.prenom} {info.client.nom}</div>
-                  {/if}
-                  {#if intervention.cout}
-                    <div class="cout">{formatPrice(intervention.cout)}</div>
-                  {/if}
+                    <p class="description">{intervention.description}</p>
+                    {#if info.vehicule}
+                      <div class="vehicule-row">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                          <circle cx="6.5" cy="16.5" r="2.5"/>
+                          <circle cx="16.5" cy="16.5" r="2.5"/>
+                        </svg>
+                        <span class="vehicule">{info.vehicule.marque} {info.vehicule.modele}</span>
+                        <span class="immat">{info.vehicule.immatriculation}</span>
+                      </div>
+                    {/if}
+                    {#if info.client}
+                      <div class="client-row">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                          <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <span>{info.client.prenom} {info.client.nom}</span>
+                      </div>
+                    {/if}
+                  </div>
+                  <div class="card-right">
+                    {#if intervention.cout}
+                      <div class="cout">{formatPrice(intervention.cout)}</div>
+                    {/if}
+                    <svg class="card-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                  </div>
                 </button>
               {/each}
             </div>
@@ -198,18 +289,76 @@
   }
 
   .main-content {
-    padding: 1rem;
-    padding-bottom: 5rem;
-    max-width: 800px;
+    padding: 1.5rem 1rem;
+    padding-bottom: 6rem;
+    max-width: 900px;
     margin: 0 auto;
   }
 
   .loading {
-    text-align: center;
-    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 4rem 2rem;
     color: var(--text-secondary);
   }
 
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-md);
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border-color);
+  }
+
+  /* Section styles */
   .interventions-section {
     margin-bottom: 1.5rem;
   }
@@ -219,56 +368,103 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.25rem;
     background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border: none;
+    border-radius: var(--radius-lg);
     cursor: pointer;
-    margin-bottom: 0.75rem;
-    transition: background-color 0.2s;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
   }
 
   .section-header:hover {
-    background: var(--bg-hover);
+    box-shadow: var(--shadow-md);
+  }
+
+  .section-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .section-icon.waiting {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    color: #6b7280;
+  }
+
+  .section-icon.ongoing {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #b45309;
+  }
+
+  .section-title-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
   }
 
   .section-title {
     font-size: 1.125rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-primary);
     margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  }
+
+  .section-subtitle {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
   }
 
   .chevron {
-    color: var(--text-secondary);
-    transition: transform 0.2s;
+    color: var(--text-muted);
+    transition: transform var(--transition-normal);
   }
 
   .chevron.expanded {
     transform: rotate(180deg);
   }
 
-  .count {
-    background: var(--primary-color);
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.125rem 0.5rem;
-    border-radius: 10px;
-  }
-
-  .empty-message {
-    text-align: center;
-    padding: 1.5rem;
-    color: var(--text-secondary);
+  /* Empty state */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 2.5rem;
     background: white;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    border: 2px dashed var(--border-color);
   }
 
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--bg-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-green);
+  }
+
+  .empty-state p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+  }
+
+  /* Intervention cards */
   .interventions-list {
     display: flex;
     flex-direction: column;
@@ -276,19 +472,46 @@
   }
 
   .intervention-card {
+    display: flex;
+    align-items: stretch;
     background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1rem;
+    border: none;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
     text-align: left;
     cursor: pointer;
-    transition: box-shadow 0.2s, border-color 0.2s;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-sm);
     width: 100%;
   }
 
   .intervention-card:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border-color: var(--primary-color);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  .card-left {
+    width: 6px;
+    flex-shrink: 0;
+  }
+
+  .type-indicator {
+    width: 100%;
+    height: 100%;
+  }
+
+  .type-indicator.type-entretien {
+    background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+  }
+
+  .type-indicator.type-reparation {
+    background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+  }
+
+  .card-content {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    min-width: 0;
   }
 
   .card-header {
@@ -299,71 +522,91 @@
   }
 
   .type-badge {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.375rem 0.625rem;
+    border-radius: var(--radius-sm);
     text-transform: uppercase;
-    letter-spacing: 0.025em;
+    letter-spacing: 0.05em;
   }
 
-  .type-entretien {
+  .type-badge.type-entretien {
     background: #dbeafe;
     color: #1d4ed8;
   }
 
-  .type-reparation {
+  .type-badge.type-reparation {
     background: #fef3c7;
     color: #b45309;
   }
 
   .date {
     font-size: 0.8125rem;
-    color: var(--text-secondary);
+    color: var(--text-muted);
+    font-weight: 500;
   }
 
   .description {
     font-size: 0.9375rem;
     color: var(--text-primary);
     margin: 0 0 0.75rem;
-    line-height: 1.4;
+    line-height: 1.5;
+    font-weight: 500;
   }
 
-  .vehicule-info {
+  .vehicule-row,
+  .client-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 0.25rem;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.375rem;
+  }
+
+  .vehicule-row svg,
+  .client-row svg {
+    color: var(--text-muted);
+    flex-shrink: 0;
   }
 
   .vehicule {
-    font-size: 0.875rem;
     font-weight: 500;
-    color: var(--text-primary);
   }
 
   .immat {
     font-size: 0.75rem;
     color: var(--primary-color);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.05em;
+    background: var(--primary-lighter);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
   }
 
-  .client-info {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
+  .card-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 1rem;
+    padding-left: 0;
+    gap: 0.5rem;
   }
 
   .cout {
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 700;
     color: var(--primary-color);
+  }
+
+  .card-chevron {
+    color: var(--text-muted);
   }
 
   @media (min-width: 768px) {
     .main-content {
-      padding-left: 100px;
+      padding-left: 108px;
     }
   }
 </style>

@@ -1,28 +1,59 @@
 :root {
   /* BMW M Colors */
-  --primary-color: #0066B1;
-  --primary-dark: #004d87;
-  --primary-light: #e6f0f8;
+  --primary-color: #16588E;
+  --primary-dark: #0f4270;
+  --primary-light: #81C4FF;
+  --primary-lighter: #e8f4ff;
+  --primary-gradient: linear-gradient(135deg, #16588E 0%, #81C4FF 100%);
 
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
+  /* BMW M Red accent */
+  --accent-red: #E7222E;
+  --accent-red-light: #fde8e9;
 
-  --bg-primary: #f9fafb;
-  --bg-secondary: #f3f4f6;
-  --bg-hover: #e5e7eb;
+  /* Other accents */
+  --accent-orange: #f59e0b;
+  --accent-green: #10b981;
+  --accent-purple: #8b5cf6;
 
-  --border-color: #e5e7eb;
+  --text-primary: #1a1a2e;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  --bg-primary: #f1f5f9;
+  --bg-secondary: #ffffff;
+  --bg-hover: #e2e8f0;
+  --bg-card: #ffffff;
+
+  --border-color: #e2e8f0;
+  --border-light: #f1f5f9;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
   /* Typography */
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.6;
   font-weight: 400;
 
   /* Rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+
+  /* Border radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 }
 
 *,
@@ -54,10 +85,11 @@ body {
 a {
   color: var(--primary-color);
   text-decoration: none;
+  transition: color var(--transition-fast);
 }
 
 a:hover {
-  text-decoration: underline;
+  color: var(--primary-dark);
 }
 
 button {
@@ -75,7 +107,8 @@ input, textarea, select {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -84,7 +117,7 @@ input, textarea, select {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  background: var(--text-muted);
 }
 
 /* Focus styles */
@@ -110,4 +143,12 @@ button {
   .navigation {
     padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
   }
+}
+
+/* Utility classes */
+.gradient-text {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

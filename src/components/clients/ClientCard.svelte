@@ -83,7 +83,7 @@
     margin-top: 0.25rem;
     font-size: 0.75rem;
     color: var(--primary-color);
-    background: var(--primary-light);
+    background: var(--primary-lighter);
     padding: 0.125rem 0.5rem;
     border-radius: 4px;
   }

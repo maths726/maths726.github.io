@@ -48,6 +48,8 @@
   .search-bar {
     display: flex;
     align-items: center;
+    flex: 1;
+    width: 100%;
     background: var(--bg-secondary);
     border-radius: 8px;
     padding: 0.5rem 0.75rem;
