@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#000000"/>
+
+  <!-- Sports car body - flowing curves -->
+  <path d="M 55 310
+           Q 60 280, 90 265
+           Q 140 245, 200 238
+           Q 280 230, 350 240
+           Q 410 250, 445 280
+           Q 460 295, 458 310"
+        fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Sleek cabin/roof with curves -->
+  <path d="M 195 238
+           Q 210 210, 250 195
+           Q 300 185, 340 205
+           Q 365 220, 370 245"
+        fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Curved windshield -->
+  <path d="M 250 195 Q 220 215, 200 240" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Curved rear window -->
+  <path d="M 340 205 Q 360 220, 368 245" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Bottom curve -->
+  <path d="M 55 310 Q 256 325, 458 310" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Front wheel -->
+  <circle cx="130" cy="310" r="40" fill="none" stroke="#ffffff" stroke-width="6"/>
+  <circle cx="130" cy="310" r="20" fill="none" stroke="#ffffff" stroke-width="3"/>
+  <circle cx="130" cy="310" r="6" fill="#ffffff"/>
+
+  <!-- Rear wheel -->
+  <circle cx="385" cy="310" r="40" fill="none" stroke="#ffffff" stroke-width="6"/>
+  <circle cx="385" cy="310" r="20" fill="none" stroke="#ffffff" stroke-width="3"/>
+  <circle cx="385" cy="310" r="6" fill="#ffffff"/>
+
+  <!-- Front curved headlight -->
+  <path d="M 70 280 Q 85 270, 100 268" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Rear curved taillight -->
+  <path d="M 448 285 Q 455 295, 455 305" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Hood curve detail -->
+  <path d="M 160 250 Q 200 242, 240 240" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Side curve detail -->
+  <path d="M 240 265 Q 300 258, 360 265" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+</svg>
