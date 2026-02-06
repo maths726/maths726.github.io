@@ -4,6 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/suivi-client/',
   plugins: [
     svelte(),
     VitePWA({
@@ -16,7 +17,7 @@ export default defineConfig({
         theme_color: '#16588E',
         background_color: '#0f172a',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/suivi-client/',
         icons: [
           {
             src: 'pwa-192x192.png',
