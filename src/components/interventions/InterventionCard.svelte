@@ -53,7 +53,7 @@
     gap: 0.75rem;
     width: 100%;
     padding: 1rem;
-    background: white;
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     cursor: pointer;

@@ -73,7 +73,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--bg-card);
     z-index: 100;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
     border-top-left-radius: var(--radius-xl);

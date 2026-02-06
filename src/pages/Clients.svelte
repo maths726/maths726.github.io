@@ -94,7 +94,7 @@
     display: flex;
     gap: 0.75rem;
     padding: 1rem;
-    background: white;
+    background: var(--bg-card);
     border-bottom: 1px solid var(--border-color);
   }
 

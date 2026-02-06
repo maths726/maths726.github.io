@@ -180,7 +180,7 @@
     border-radius: 8px;
     font-size: 1rem;
     color: var(--text-primary);
-    background: white;
+    background: var(--bg-card);
     transition: border-color 0.2s;
   }
 

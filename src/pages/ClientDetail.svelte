@@ -201,7 +201,7 @@
   }
 
   .client-info {
-    background: white;
+    background: var(--bg-card);
     padding: 1.5rem;
     border-bottom: 1px solid var(--border-color);
   }

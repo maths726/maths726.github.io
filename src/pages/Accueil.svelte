@@ -338,7 +338,7 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
-    background: white;
+    background: var(--bg-card);
     border-radius: var(--radius-lg);
     padding: 1.25rem;
     margin-bottom: 1.5rem;
@@ -398,7 +398,7 @@
     justify-content: space-between;
     width: 100%;
     padding: 1rem 1.25rem;
-    background: white;
+    background: var(--bg-card);
     border: none;
     border-radius: var(--radius-lg);
     cursor: pointer;
@@ -471,7 +471,7 @@
     align-items: center;
     gap: 0.75rem;
     padding: 2.5rem;
-    background: white;
+    background: var(--bg-card);
     border-radius: var(--radius-lg);
     border: 2px dashed var(--border-color);
   }
@@ -503,7 +503,7 @@
   .intervention-card {
     display: flex;
     align-items: stretch;
-    background: white;
+    background: var(--bg-card);
     border: none;
     border-radius: var(--radius-lg);
     overflow: hidden;

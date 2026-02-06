@@ -152,3 +152,31 @@ button {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Dark mode */
+:root.dark {
+  --primary-color: #81C4FF;
+  --primary-dark: #5ba8e6;
+  --primary-light: #16588E;
+  --primary-lighter: #1e3a5f;
+  --primary-gradient: linear-gradient(135deg, #16588E 0%, #81C4FF 100%);
+
+  --accent-red-light: #3d1a1c;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-hover: #334155;
+  --bg-card: #1e293b;
+
+  --border-color: #334155;
+  --border-light: #1e293b;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+}

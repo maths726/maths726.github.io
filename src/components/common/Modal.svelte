@@ -58,7 +58,7 @@
   }
 
   .modal {
-    background: white;
+    background: var(--bg-card);
     border-radius: var(--radius-xl);
     width: 100%;
     max-width: 520px;
@@ -75,7 +75,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.25rem 1.5rem;
-    background: linear-gradient(to bottom, var(--bg-primary), white);
+    background: linear-gradient(to bottom, var(--bg-primary), var(--bg-card));
     border-bottom: 1px solid var(--border-color);
   }
 

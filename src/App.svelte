@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte'
   import navaid from 'navaid'
-  import { currentRoute } from './lib/stores/ui.js'
+  import { currentRoute, darkMode } from './lib/stores/ui.js'
   import Navigation from './components/common/Navigation.svelte'
   import Toast from './components/common/Toast.svelte'
   import Accueil from './pages/Accueil.svelte'
@@ -18,6 +18,9 @@
   function navigate(path) {
     router.route(path)
   }
+
+  // Initialize dark mode on startup
+  darkMode.init()
 
   onMount(() => {
     router = navaid('/')

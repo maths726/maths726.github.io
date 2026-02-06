@@ -319,7 +319,7 @@
     padding: 1rem 0.75rem;
     border: 2px solid var(--border-color);
     border-radius: var(--radius-lg);
-    background: white;
+    background: var(--bg-card);
     cursor: pointer;
     transition: all var(--transition-normal);
   }
@@ -433,7 +433,7 @@
     border-radius: var(--radius-md);
     font-size: 0.9375rem;
     color: var(--text-primary);
-    background: white;
+    background: var(--bg-card);
     transition: all var(--transition-fast);
   }
 
