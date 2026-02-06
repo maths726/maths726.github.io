@@ -131,14 +131,7 @@
   }
 
   .active-indicator {
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 6px;
-    height: 6px;
-    background: var(--primary-color);
-    border-radius: 50%;
+    display: none;
   }
 
   .nav-label {
@@ -175,13 +168,14 @@
     }
 
     .active-indicator {
-      bottom: auto;
-      left: auto;
+      display: block;
+      position: absolute;
       right: -12px;
       top: 50%;
       transform: translateY(-50%);
       width: 4px;
       height: 24px;
+      background: var(--primary-color);
       border-radius: 2px;
     }
   }

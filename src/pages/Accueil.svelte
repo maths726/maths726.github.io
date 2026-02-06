@@ -81,6 +81,21 @@
     showEditModal = false
     selectedIntervention = null
   }
+
+  function showEnAttenteOnly() {
+    enAttenteExpanded = true
+    enCoursExpanded = false
+  }
+
+  function showEnCoursOnly() {
+    enAttenteExpanded = false
+    enCoursExpanded = true
+  }
+
+  function showAll() {
+    enAttenteExpanded = true
+    enCoursExpanded = true
+  }
 </script>
 
 <div class="page">
@@ -95,20 +110,20 @@
     {:else}
       <!-- Stats summary -->
       <div class="stats-bar">
-        <div class="stat-item">
+        <button class="stat-item" class:active={enAttenteExpanded && !enCoursExpanded} onclick={showEnAttenteOnly}>
           <span class="stat-number">{interventionsEnAttente.length}</span>
           <span class="stat-label">En attente</span>
-        </div>
+        </button>
         <div class="stat-divider"></div>
-        <div class="stat-item">
+        <button class="stat-item" class:active={!enAttenteExpanded && enCoursExpanded} onclick={showEnCoursOnly}>
           <span class="stat-number">{interventionsEnCours.length}</span>
           <span class="stat-label">En cours</span>
-        </div>
+        </button>
         <div class="stat-divider"></div>
-        <div class="stat-item">
+        <button class="stat-item" class:active={enAttenteExpanded && enCoursExpanded} onclick={showAll}>
           <span class="stat-number">{interventionsEnAttente.length + interventionsEnCours.length}</span>
           <span class="stat-label">Total actif</span>
-        </div>
+        </button>
       </div>
 
       <!-- En attente section -->
@@ -335,6 +350,20 @@
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
+    background: transparent;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .stat-item:hover {
+    background: var(--bg-primary);
+  }
+
+  .stat-item.active {
+    background: var(--primary-lighter);
   }
 
   .stat-number {
