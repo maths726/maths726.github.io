@@ -21,14 +21,15 @@ describe('interventions db', () => {
   describe('constants', () => {
     it('should export TYPES_INTERVENTION', () => {
       expect(TYPES_INTERVENTION).toBeDefined()
-      expect(TYPES_INTERVENTION.length).toBeGreaterThan(0)
+      expect(TYPES_INTERVENTION.length).toBe(2)
       expect(TYPES_INTERVENTION.some(t => t.value === 'entretien')).toBe(true)
       expect(TYPES_INTERVENTION.some(t => t.value === 'reparation')).toBe(true)
     })
 
     it('should export STATUTS_INTERVENTION', () => {
       expect(STATUTS_INTERVENTION).toBeDefined()
-      expect(STATUTS_INTERVENTION.length).toBeGreaterThan(0)
+      expect(STATUTS_INTERVENTION.length).toBe(3)
+      expect(STATUTS_INTERVENTION.some(s => s.value === 'en_attente')).toBe(true)
       expect(STATUTS_INTERVENTION.some(s => s.value === 'en_cours')).toBe(true)
       expect(STATUTS_INTERVENTION.some(s => s.value === 'termine')).toBe(true)
     })
@@ -73,8 +74,7 @@ describe('interventions db', () => {
         description: 'Remplacement freins',
         date: '2024-01-15',
         kilometrage: 55000,
-        coutEstime: 250,
-        coutFinal: 280,
+        cout: 280,
         pieces: ['Plaquettes AV', 'Disques AV'],
         statut: 'termine',
         notes: 'Travail effectué'
@@ -83,8 +83,7 @@ describe('interventions db', () => {
 
       expect(result.date).toBe('2024-01-15')
       expect(result.kilometrage).toBe(55000)
-      expect(result.coutEstime).toBe(250)
-      expect(result.coutFinal).toBe(280)
+      expect(result.cout).toBe(280)
       expect(result.pieces).toEqual(['Plaquettes AV', 'Disques AV'])
       expect(result.statut).toBe('termine')
       expect(result.notes).toBe('Travail effectué')
@@ -171,11 +170,11 @@ describe('interventions db', () => {
 
       const result = await updateIntervention(created.id, {
         statut: 'termine',
-        coutFinal: 150
+        cout: 150
       })
 
       expect(result.statut).toBe('termine')
-      expect(result.coutFinal).toBe(150)
+      expect(result.cout).toBe(150)
       expect(result.description).toBe('Vidange')
     })
 

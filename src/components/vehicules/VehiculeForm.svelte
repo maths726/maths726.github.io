@@ -7,7 +7,6 @@
     annee: vehicule?.annee || '',
     immatriculation: vehicule?.immatriculation || '',
     vin: vehicule?.vin || '',
-    kilometrage: vehicule?.kilometrage || '',
     notes: vehicule?.notes || ''
   })
 
@@ -31,10 +30,6 @@
       newErrors.annee = 'Année invalide'
     }
 
-    if (formData.kilometrage && formData.kilometrage < 0) {
-      newErrors.kilometrage = 'Kilométrage invalide'
-    }
-
     errors = newErrors
     return Object.keys(newErrors).length === 0
   }
@@ -48,8 +43,7 @@
     try {
       await onSubmit?.({
         ...formData,
-        annee: formData.annee ? parseInt(formData.annee) : null,
-        kilometrage: formData.kilometrage ? parseInt(formData.kilometrage) : 0
+        annee: formData.annee ? parseInt(formData.annee) : null
       })
     } finally {
       isSubmitting = false
@@ -120,33 +114,15 @@
     </div>
   </div>
 
-  <div class="form-row">
-    <div class="form-group">
-      <label for="kilometrage" class="form-label">Kilométrage</label>
-      <input
-        type="number"
-        id="kilometrage"
-        class="form-input"
-        class:error={errors.kilometrage}
-        bind:value={formData.kilometrage}
-        placeholder="50000"
-        min="0"
-      />
-      {#if errors.kilometrage}
-        <span class="form-error">{errors.kilometrage}</span>
-      {/if}
-    </div>
-
-    <div class="form-group">
-      <label for="vin" class="form-label">VIN (optionnel)</label>
-      <input
-        type="text"
-        id="vin"
-        class="form-input"
-        bind:value={formData.vin}
-        placeholder="VF1XXXXXXXXX"
-      />
-    </div>
+  <div class="form-group">
+    <label for="vin" class="form-label">VIN (optionnel)</label>
+    <input
+      type="text"
+      id="vin"
+      class="form-input"
+      bind:value={formData.vin}
+      placeholder="VF1XXXXXXXXX"
+    />
   </div>
 
   <div class="form-group">

@@ -24,6 +24,12 @@
   let showDeleteConfirm = $state(false)
   let fromVehicules = $state(false)
 
+  let lastKilometrage = $derived(
+    $interventions
+      .filter(i => i.kilometrage > 0)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.kilometrage || 0
+  )
+
   onMount(async () => {
     const urlParams = new URLSearchParams(window.location.search)
     fromVehicules = urlParams.get('from') === 'vehicules'
@@ -150,10 +156,10 @@
               <span class="info-value">{vehicule.annee}</span>
             </div>
           {/if}
-          {#if vehicule.kilometrage}
+          {#if lastKilometrage}
             <div class="info-item">
               <span class="info-label">Kilométrage</span>
-              <span class="info-value">{formatKilometrage(vehicule.kilometrage)}</span>
+              <span class="info-value">{formatKilometrage(lastKilometrage)}</span>
             </div>
           {/if}
           {#if vehicule.vin}

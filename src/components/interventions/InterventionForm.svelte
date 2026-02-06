@@ -10,8 +10,7 @@
     description: intervention?.description || '',
     date: intervention?.date || today,
     kilometrage: intervention?.kilometrage || '',
-    coutEstime: intervention?.coutEstime || '',
-    coutFinal: intervention?.coutFinal || '',
+    cout: intervention?.cout || '',
     pieces: intervention?.pieces?.join(', ') || '',
     statut: intervention?.statut || 'en_cours',
     notes: intervention?.notes || ''
@@ -35,12 +34,8 @@
       newErrors.date = 'Date requise'
     }
 
-    if (formData.coutEstime && formData.coutEstime < 0) {
-      newErrors.coutEstime = 'Coût invalide'
-    }
-
-    if (formData.coutFinal && formData.coutFinal < 0) {
-      newErrors.coutFinal = 'Coût invalide'
+    if (formData.cout && formData.cout < 0) {
+      newErrors.cout = 'Coût invalide'
     }
 
     errors = newErrors
@@ -62,8 +57,7 @@
       await onSubmit?.({
         ...formData,
         kilometrage: formData.kilometrage ? parseInt(formData.kilometrage) : 0,
-        coutEstime: formData.coutEstime ? parseFloat(formData.coutEstime) : null,
-        coutFinal: formData.coutFinal ? parseFloat(formData.coutFinal) : null,
+        cout: formData.cout ? parseFloat(formData.cout) : null,
         pieces
       })
     } finally {
@@ -73,6 +67,19 @@
 </script>
 
 <form class="intervention-form" onsubmit={handleSubmit}>
+  <div class="status-buttons">
+    {#each STATUTS_INTERVENTION as statut}
+      <button
+        type="button"
+        class="status-btn"
+        class:active={formData.statut === statut.value}
+        onclick={() => formData.statut = statut.value}
+      >
+        {statut.label}
+      </button>
+    {/each}
+  </div>
+
   <div class="form-row">
     <div class="form-group">
       <label for="type" class="form-label">Type *</label>
@@ -92,36 +99,6 @@
     </div>
 
     <div class="form-group">
-      <label for="statut" class="form-label">Statut</label>
-      <select
-        id="statut"
-        class="form-select"
-        bind:value={formData.statut}
-      >
-        {#each STATUTS_INTERVENTION as statut}
-          <option value={statut.value}>{statut.label}</option>
-        {/each}
-      </select>
-    </div>
-  </div>
-
-  <div class="form-group">
-    <label for="description" class="form-label">Description *</label>
-    <textarea
-      id="description"
-      class="form-textarea"
-      class:error={errors.description}
-      bind:value={formData.description}
-      placeholder="Décrivez l'intervention..."
-      rows="3"
-    ></textarea>
-    {#if errors.description}
-      <span class="form-error">{errors.description}</span>
-    {/if}
-  </div>
-
-  <div class="form-row">
-    <div class="form-group">
       <label for="date" class="form-label">Date *</label>
       <input
         type="date"
@@ -134,9 +111,26 @@
         <span class="form-error">{errors.date}</span>
       {/if}
     </div>
+  </div>
 
+  <div class="form-group">
+    <label for="description" class="form-label">Description *</label>
+    <textarea
+      id="description"
+      class="form-textarea"
+      class:error={errors.description}
+      bind:value={formData.description}
+      placeholder="Decrivez l'intervention..."
+      rows="3"
+    ></textarea>
+    {#if errors.description}
+      <span class="form-error">{errors.description}</span>
+    {/if}
+  </div>
+
+  <div class="form-row">
     <div class="form-group">
-      <label for="kilometrage" class="form-label">Kilométrage</label>
+      <label for="kilometrage" class="form-label">Kilometrage</label>
       <input
         type="number"
         id="kilometrage"
@@ -146,54 +140,34 @@
         min="0"
       />
     </div>
-  </div>
 
-  <div class="form-row">
     <div class="form-group">
-      <label for="coutEstime" class="form-label">Coût estimé (€)</label>
+      <label for="cout" class="form-label">Cout (EUR)</label>
       <input
         type="number"
-        id="coutEstime"
+        id="cout"
         class="form-input"
-        class:error={errors.coutEstime}
-        bind:value={formData.coutEstime}
+        class:error={errors.cout}
+        bind:value={formData.cout}
         placeholder="150.00"
         min="0"
         step="0.01"
       />
-      {#if errors.coutEstime}
-        <span class="form-error">{errors.coutEstime}</span>
-      {/if}
-    </div>
-
-    <div class="form-group">
-      <label for="coutFinal" class="form-label">Coût final (€)</label>
-      <input
-        type="number"
-        id="coutFinal"
-        class="form-input"
-        class:error={errors.coutFinal}
-        bind:value={formData.coutFinal}
-        placeholder="175.00"
-        min="0"
-        step="0.01"
-      />
-      {#if errors.coutFinal}
-        <span class="form-error">{errors.coutFinal}</span>
+      {#if errors.cout}
+        <span class="form-error">{errors.cout}</span>
       {/if}
     </div>
   </div>
 
   <div class="form-group">
-    <label for="pieces" class="form-label">Pièces utilisées</label>
+    <label for="pieces" class="form-label">Pieces changees</label>
     <input
       type="text"
       id="pieces"
       class="form-input"
       bind:value={formData.pieces}
-      placeholder="Filtre à huile, huile 5W30, filtre à air..."
+      placeholder="Filtre a huile, huile 5W30..."
     />
-    <span class="form-hint">Séparez les pièces par des virgules</span>
   </div>
 
   <div class="form-group">
@@ -222,6 +196,36 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+  }
+
+  .status-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .status-btn {
+    flex: 1;
+    padding: 0.75rem 0.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .status-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+  }
+
+  .status-btn.active {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
   }
 
   .form-row {

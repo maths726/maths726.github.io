@@ -3,15 +3,13 @@ import { v4 as uuidv4 } from 'uuid'
 
 export const TYPES_INTERVENTION = [
   { value: 'entretien', label: 'Entretien' },
-  { value: 'reparation', label: 'Réparation' },
-  { value: 'diagnostic', label: 'Diagnostic' },
-  { value: 'controle', label: 'Contrôle' }
+  { value: 'reparation', label: 'Réparation' }
 ]
 
 export const STATUTS_INTERVENTION = [
+  { value: 'en_attente', label: 'En attente' },
   { value: 'en_cours', label: 'En cours' },
-  { value: 'termine', label: 'Terminé' },
-  { value: 'facture', label: 'Facturé' }
+  { value: 'termine', label: 'Terminé' }
 ]
 
 export async function addIntervention(interventionData) {
@@ -35,8 +33,7 @@ export async function addIntervention(interventionData) {
     description: interventionData.description.trim(),
     date: interventionData.date || now.split('T')[0],
     kilometrage: interventionData.kilometrage || 0,
-    coutEstime: interventionData.coutEstime || null,
-    coutFinal: interventionData.coutFinal || null,
+    cout: interventionData.cout || null,
     pieces: interventionData.pieces || [],
     statut: interventionData.statut || 'en_cours',
     notes: interventionData.notes?.trim() || '',

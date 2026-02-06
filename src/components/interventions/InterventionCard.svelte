@@ -4,8 +4,8 @@
 
   let { intervention, onClick } = $props()
 
-  const typeLabel = TYPES_INTERVENTION.find(t => t.value === intervention.type)?.label || intervention.type
-  const statutLabel = STATUTS_INTERVENTION.find(s => s.value === intervention.statut)?.label || intervention.statut
+  let typeLabel = $derived(TYPES_INTERVENTION.find(t => t.value === intervention.type)?.label || intervention.type)
+  let statutLabel = $derived(STATUTS_INTERVENTION.find(s => s.value === intervention.statut)?.label || intervention.statut)
 </script>
 
 <button class="intervention-card" onclick={() => onClick?.(intervention)}>
@@ -34,12 +34,9 @@
           {formatKilometrage(intervention.kilometrage)}
         </span>
       {/if}
-      {#if intervention.coutFinal || intervention.coutEstime}
+      {#if intervention.cout}
         <span class="meta-item meta-price">
-          {formatPrice(intervention.coutFinal || intervention.coutEstime)}
-          {#if !intervention.coutFinal && intervention.coutEstime}
-            <span class="estimate">(estimé)</span>
-          {/if}
+          {formatPrice(intervention.cout)}
         </span>
       {/if}
     </div>
@@ -95,21 +92,16 @@
     color: #b45309;
   }
 
-  .type-diagnostic {
-    background: #e0e7ff;
-    color: #4338ca;
-  }
-
-  .type-controle {
-    background: #d1fae5;
-    color: #047857;
-  }
-
   .intervention-statut {
     font-size: 0.75rem;
     font-weight: 500;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
+  }
+
+  .statut-en_attente {
+    background: #e5e7eb;
+    color: #4b5563;
   }
 
   .statut-en_cours {
@@ -120,11 +112,6 @@
   .statut-termine {
     background: #d1fae5;
     color: #047857;
-  }
-
-  .statut-facture {
-    background: #e0e7ff;
-    color: #4338ca;
   }
 
   .intervention-content {
