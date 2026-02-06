@@ -1,21 +1,11 @@
 <script>
-  import { onMount } from 'svelte'
   import Header from '../components/common/Header.svelte'
-  import { exportAndDownload, exportAllData } from '../lib/utils/export.js'
+  import { exportAndDownload, importData, readJSONFile } from '../lib/utils/export.js'
   import { showToast, darkMode } from '../lib/stores/ui.js'
 
-  let stats = $state({
-    clients: 0,
-    vehicules: 0,
-    interventions: 0
-  })
-
   let isExporting = $state(false)
-
-  onMount(async () => {
-    const data = await exportAllData()
-    stats = data.stats
-  })
+  let isImporting = $state(false)
+  let fileInput
 
   function toggleDarkMode() {
     darkMode.toggle()
@@ -30,6 +20,32 @@
       showToast('Erreur lors de l\'export', 'error')
     } finally {
       isExporting = false
+    }
+  }
+
+  function triggerImport() {
+    fileInput.click()
+  }
+
+  async function handleImport(event) {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    isImporting = true
+    try {
+      const jsonData = await readJSONFile(file)
+      const result = await importData(jsonData)
+      const total = result.clients + result.vehicules + result.interventions
+      if (total > 0) {
+        showToast(`${total} élément(s) importé(s)`, 'success')
+      } else {
+        showToast('Aucune nouvelle donnée à importer', 'info')
+      }
+    } catch (error) {
+      showToast(error.message || 'Erreur lors de l\'import', 'error')
+    } finally {
+      isImporting = false
+      event.target.value = ''
     }
   }
 </script>
@@ -75,35 +91,37 @@
     </section>
 
     <section class="settings-section">
-      <h2 class="section-title">Export des données</h2>
+      <h2 class="section-title">Données</h2>
       <div class="card">
         <p class="card-description">
-          Exportez toutes vos données au format JSON pour les sauvegarder ou les transférer.
+          Exportez ou importez vos données au format JSON.
         </p>
 
-        <div class="stats-summary">
-          <div class="stat">
-            <span class="stat-value">{stats.clients}</span>
-            <span class="stat-label">clients</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">{stats.vehicules}</span>
-            <span class="stat-label">véhicules</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">{stats.interventions}</span>
-            <span class="stat-label">interventions</span>
-          </div>
+        <div class="data-buttons">
+          <button class="data-btn export" onclick={handleExport} disabled={isExporting}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            {isExporting ? 'Export...' : 'Exporter'}
+          </button>
+          <button class="data-btn import" onclick={triggerImport} disabled={isImporting}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            {isImporting ? 'Import...' : 'Importer'}
+          </button>
         </div>
-
-        <button class="export-btn" onclick={handleExport} disabled={isExporting}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          {isExporting ? 'Export en cours...' : 'Exporter les données'}
-        </button>
+        <input
+          type="file"
+          accept=".json,application/json"
+          bind:this={fileInput}
+          onchange={handleImport}
+          style="display: none"
+        />
       </div>
     </section>
 
@@ -137,6 +155,7 @@
               Export JSON
             </div>
           </div>
+          <p class="powered-by">Powered by Mathis Sauret</p>
         </div>
       </div>
     </section>
@@ -258,31 +277,48 @@
     line-height: 1.5;
   }
 
-  .stats-summary {
+  .data-buttons {
     display: flex;
-    justify-content: space-around;
-    padding: 1rem;
-    background: var(--bg-secondary);
-    border-radius: 8px;
-    margin-bottom: 1.25rem;
+    gap: 0.75rem;
   }
 
-  .stat {
+  .data-btn {
+    flex: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
   }
 
-  .stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
+  .data-btn.export {
+    background: var(--primary-color);
+    color: white;
   }
 
-  .stat-label {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+  .data-btn.export:hover:not(:disabled) {
+    background: var(--primary-dark);
+  }
+
+  .data-btn.import {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+  }
+
+  .data-btn.import:hover:not(:disabled) {
+    background: var(--border-color);
+  }
+
+  .data-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   .export-btn {
@@ -352,6 +388,13 @@
 
   .feature svg {
     color: #22c55e;
+  }
+
+  .powered-by {
+    margin: 1.5rem 0 0;
+    font-size: 0.8125rem;
+    font-style: italic;
+    color: var(--text-muted);
   }
 
   @media (min-width: 768px) {
