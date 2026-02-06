@@ -13,8 +13,8 @@ export default defineConfig({
         name: 'Suivi Client - Mécanicien',
         short_name: 'Suivi Client',
         description: 'Application de suivi client pour travaux mécaniques',
-        theme_color: '#ff3e00',
-        background_color: '#ffffff',
+        theme_color: '#16588E',
+        background_color: '#0f172a',
         display: 'standalone',
         start_url: '/',
         icons: [
