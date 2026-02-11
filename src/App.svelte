@@ -16,20 +16,32 @@
   let params = $state({})
   let router
   let showSplash = $state(true)
+  let splashAnimationDone = $state(false)
 
   function navigate(path) {
     router.route(path)
   }
 
   function handleSplashComplete() {
-    showSplash = false
+    splashAnimationDone = true
+    // Only hide splash when both animation is done AND page is ready
+    if (page) {
+      showSplash = false
+    }
   }
+
+  // Watch for page becoming ready after animation finished
+  $effect(() => {
+    if (splashAnimationDone && page && showSplash) {
+      showSplash = false
+    }
+  })
 
   // Initialize dark mode on startup
   darkMode.init()
 
   onMount(() => {
-    router = navaid('/')
+    router = navaid('/suivi-client')
 
     router.on('/', () => {
       page = Accueil
