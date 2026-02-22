@@ -79,13 +79,16 @@ describe('clients db', () => {
     })
 
     it('should return all clients sorted by createdAt desc', async () => {
-      await addClient({ nom: 'Dupont', prenom: 'Jean', telephone: '0612345678' })
-      await addClient({ nom: 'Martin', prenom: 'Paul', telephone: '0687654321' })
+      const client1 = await addClient({ nom: 'Dupont', prenom: 'Jean', telephone: '0612345678' })
+      // Small delay to ensure different timestamps
+      await new Promise(resolve => setTimeout(resolve, 10))
+      const client2 = await addClient({ nom: 'Martin', prenom: 'Paul', telephone: '0687654321' })
 
       const result = await getAllClients()
       expect(result.length).toBe(2)
-      expect(result[0].nom).toBe('Martin')
-      expect(result[1].nom).toBe('Dupont')
+      // Most recent (Martin) should be first
+      expect(result[0].id).toBe(client2.id)
+      expect(result[1].id).toBe(client1.id)
     })
   })
 

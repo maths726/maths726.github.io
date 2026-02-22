@@ -81,11 +81,22 @@ export async function initGoogleAuth(clientId) {
     throw new Error('Client ID is required')
   }
 
+  console.log('🔧 Initializing Google Auth...')
+  console.log('📍 Current origin:', window.location.origin)
+  console.log('📍 Full URL:', window.location.href)
+  console.log('🔑 Client ID:', clientId)
+
   await Promise.all([loadGapiClient(), waitForGis()])
 
+  console.log('✅ GAPI loaded:', gapiLoaded)
+  console.log('✅ GIS loaded:', gisLoaded)
+
   if (!gisLoaded) {
+    console.error('❌ Google Identity Services not available')
     throw new Error('Google Identity Services not available')
   }
+
+  console.log('🔧 Creating token client...')
 
   tokenClient = window.google.accounts.oauth2.initTokenClient({
     client_id: clientId,
@@ -93,13 +104,18 @@ export async function initGoogleAuth(clientId) {
     callback: () => {} // Will be set during signIn
   })
 
+  console.log('✅ Token client created')
+
   // Check for existing token in localStorage
   const savedToken = localStorage.getItem('gdrive_access_token')
   const savedExpiry = localStorage.getItem('gdrive_token_expiry')
 
   if (savedToken && savedExpiry && Date.now() < parseInt(savedExpiry)) {
+    console.log('✅ Found existing valid token')
     accessToken = savedToken
     window.gapi.client.setToken({ access_token: accessToken })
+  } else {
+    console.log('ℹ️ No existing token or token expired')
   }
 }
 
@@ -114,12 +130,18 @@ export function signIn() {
       return
     }
 
-    tokenClient.callback = async (response) => {
+    console.log('🔐 Starting sign in process...')
+
+    tokenClient.callback = (response) => {
+      console.log('📨 Received OAuth response')
+      
       if (response.error) {
+        console.error('❌ Token error:', response.error)
         reject(new Error(response.error))
         return
       }
 
+      console.log('✅ Access token received')
       accessToken = response.access_token
 
       // Set token in GAPI client for Drive API calls
@@ -130,20 +152,27 @@ export function signIn() {
       localStorage.setItem('gdrive_access_token', accessToken)
       localStorage.setItem('gdrive_token_expiry', expiryTime.toString())
 
+      console.log('📧 Fetching user info...')
+
       // Get user email
-      try {
-        const userInfo = await fetchUserInfo()
-        localStorage.setItem('gdrive_user_email', userInfo.email)
-        localStorage.setItem('gdrive_connected', 'true')
-        resolve(userInfo)
-      } catch (error) {
-        reject(error)
-      }
+      fetchUserInfo()
+        .then((userInfo) => {
+          console.log('✅ User info received:', userInfo.email)
+          localStorage.setItem('gdrive_user_email', userInfo.email)
+          localStorage.setItem('gdrive_connected', 'true')
+          resolve(userInfo)
+        })
+        .catch((error) => {
+          console.error('❌ Failed to fetch user info:', error)
+          reject(error)
+        })
     }
 
-    // Request access token
+    // Request access token - MUST be called synchronously in user action
+    console.log('🚀 Requesting access token...')
+    
     if (accessToken) {
-      // Token exists, request a new one anyway to refresh
+      // Token exists, request a new one to refresh
       tokenClient.requestAccessToken({ prompt: '' })
     } else {
       // No token, show consent screen

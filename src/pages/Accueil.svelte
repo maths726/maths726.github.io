@@ -68,7 +68,7 @@
       await interventionsStore.update(selectedIntervention.id, data)
       showEditModal = false
       selectedIntervention = null
-      showToast('Intervention modifiee', 'success')
+      showToast('Intervention modifiée', 'success')
       await loadData()
     } catch (error) {
       showToast(error.message, 'error')
@@ -127,6 +127,7 @@
             <div class="interventions-list">
               {#each interventionsEnCours as intervention (intervention.id)}
                 {@const info = getVehiculeInfo(intervention.vehiculeId)}
+                {@const totalPrice = (intervention.prixPieces || 0) + (intervention.mainDoeuvre || 0) + (intervention.marge || 0)}
                 <button class="intervention-card" onclick={() => handleInterventionClick(intervention)}>
                   <div class="card-left">
                     <div class="type-indicator type-{intervention.type}"></div>
@@ -159,8 +160,11 @@
                     {/if}
                   </div>
                   <div class="card-right">
-                    {#if intervention.cout}
-                      <div class="cout">{formatPrice(intervention.cout)}</div>
+                    {#if totalPrice > 0}
+                      <div class="cout">{formatPrice(totalPrice)}</div>
+                    {/if}
+                    {#if intervention.marge && intervention.marge > 0}
+                      <div class="marge">+ {formatPrice(intervention.marge)}</div>
                     {/if}
                     <svg class="card-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="9 18 15 12 9 6"/>
@@ -476,6 +480,13 @@
     font-size: 1rem;
     font-weight: 700;
     color: var(--primary-color);
+  }
+
+  .marge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-style: italic;
+    color: #059669;
   }
 
   .card-chevron {

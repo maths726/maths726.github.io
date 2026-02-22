@@ -54,7 +54,7 @@ describe('Export integration', () => {
         type: 'entretien',
         description: 'Vidange',
         date: '2024-01-15',
-        cout: 80
+        prixPieces: 80
       })
 
       await addIntervention({
@@ -62,7 +62,7 @@ describe('Export integration', () => {
         type: 'reparation',
         description: 'Freins',
         date: '2024-02-20',
-        cout: 250
+        prixPieces: 250
       })
 
       await addIntervention({
@@ -105,7 +105,7 @@ describe('Export integration', () => {
       const vidangeIntervention = exportData.data.interventions.find(i => i.description === 'Vidange')
       expect(vidangeIntervention).toBeDefined()
       expect(vidangeIntervention.vehiculeId).toBe(vehicule1.id)
-      expect(vidangeIntervention.cout).toBe(80)
+      expect(vidangeIntervention.prixPieces).toBe(80)
     })
 
     it('should export valid JSON structure', async () => {
@@ -155,7 +155,9 @@ describe('Export integration', () => {
         description: 'Test intervention',
         date: '2024-06-15',
         kilometrage: 100000,
-        cout: 550,
+        prixPieces: 400,
+        mainDoeuvre: 100,
+        marge: 50,
         pieces: ['Piece 1', 'Piece 2', 'Piece 3'],
         statut: 'termine',
         notes: 'Notes de test'
@@ -168,7 +170,9 @@ describe('Export integration', () => {
       expect(intervention.description).toBe('Test intervention')
       expect(intervention.date).toBe('2024-06-15')
       expect(intervention.kilometrage).toBe(100000)
-      expect(intervention.cout).toBe(550)
+      expect(intervention.prixPieces).toBe(400)
+      expect(intervention.mainDoeuvre).toBe(100)
+      expect(intervention.marge).toBe(50)
       expect(intervention.pieces).toEqual(['Piece 1', 'Piece 2', 'Piece 3'])
       expect(intervention.statut).toBe('termine')
       expect(intervention.notes).toBe('Notes de test')

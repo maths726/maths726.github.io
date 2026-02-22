@@ -14,7 +14,9 @@
   import { onMount } from 'svelte'
 
   // Google OAuth Client ID - Configure this in Google Cloud Console
-  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
+  const GOOGLE_CLIENT_ID = (import.meta.env.VITE_GOOGLE_CLIENT_ID || '898227579532-r7ccqbba4e65rvdokf3746g6rlkn9cce.apps.googleusercontent.com').trim()
+  
+  console.log('📝 Using Client ID:', GOOGLE_CLIENT_ID)
 
   let isExporting = $state(false)
   let isImporting = $state(false)
@@ -84,15 +86,21 @@
   }
 
   async function handleGoogleConnect() {
+    console.log('🎯 handleGoogleConnect called')
     isConnecting = true
     try {
+      console.log('📞 Calling signIn()...')
       const userInfo = await signIn()
+      console.log('✅ signIn() returned:', userInfo)
       syncStore.setConnected(userInfo.email)
       showToast('Connecté à Google Drive', 'success')
+      console.log('✅ Connection complete!')
     } catch (error) {
+      console.error('❌ Error in handleGoogleConnect:', error)
       showToast(error.message || 'Erreur de connexion', 'error')
     } finally {
       isConnecting = false
+      console.log('🏁 handleGoogleConnect finished')
     }
   }
 
@@ -277,7 +285,13 @@
                 </div>
                 <div class="sync-info">
                   <span class="sync-email">{$syncStore.userEmail}</span>
-                  <span class="sync-last">Dernière sync : {formatLastSync($syncStore.lastSyncAt)}</span>
+                  <span class="sync-last">
+                    {#if $syncStore.isSyncing}
+                      <span class="syncing-indicator">Synchronisation...</span>
+                    {:else}
+                      Dernière sync : {formatLastSync($syncStore.lastSyncAt)}
+                    {/if}
+                  </span>
                 </div>
               </div>
             </div>
@@ -692,6 +706,16 @@
   .sync-last {
     font-size: 0.8125rem;
     color: var(--text-secondary);
+  }
+
+  .syncing-indicator {
+    color: var(--primary-color);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
   }
 
   .sync-error {

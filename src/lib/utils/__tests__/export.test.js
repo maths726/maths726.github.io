@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { exportAllData, downloadJSON, exportAndDownload } from '../export.js'
-import { addClient } from '../../db/clients.js'
-import { addVehicule } from '../../db/vehicules.js'
-import { addIntervention } from '../../db/interventions.js'
+import { exportAllData, downloadJSON, exportAndDownload, importData, readJSONFile } from '../export.js'
+import { addClient, getClient } from '../../db/clients.js'
+import { addVehicule, getVehicule } from '../../db/vehicules.js'
+import { addIntervention, getIntervention } from '../../db/interventions.js'
 import { resetDBInstance } from '../../db/index.js'
 
 describe('export utils', () => {
@@ -156,6 +156,174 @@ describe('export utils', () => {
       createElementSpy.mockRestore()
       appendChildSpy.mockRestore()
       removeChildSpy.mockRestore()
+    })
+  })
+
+  describe('importData', () => {
+    it('should throw error for invalid format', async () => {
+      await expect(importData(null)).rejects.toThrow('Format de fichier invalide')
+      await expect(importData({})).rejects.toThrow('Format de fichier invalide')
+    })
+
+    it('should import new clients', async () => {
+      const jsonData = {
+        data: {
+          clients: [{
+            id: 'test-client-1',
+            nom: 'Dupont',
+            prenom: 'Jean',
+            telephone: '0612345678',
+            updatedAt: new Date().toISOString()
+          }],
+          vehicules: [],
+          interventions: []
+        }
+      }
+
+      const result = await importData(jsonData)
+
+      expect(result.clients).toBe(1)
+      const imported = await getClient('test-client-1')
+      expect(imported.nom).toBe('Dupont')
+    })
+
+    it('should import new vehicules', async () => {
+      const client = await addClient({ nom: 'Test', prenom: 'User', telephone: '0600000000' })
+
+      const jsonData = {
+        data: {
+          clients: [],
+          vehicules: [{
+            id: 'test-vehicule-1',
+            clientId: client.id,
+            marque: 'Renault',
+            immatriculation: 'AB-123-CD',
+            updatedAt: new Date().toISOString()
+          }],
+          interventions: []
+        }
+      }
+
+      const result = await importData(jsonData)
+
+      expect(result.vehicules).toBe(1)
+      const imported = await getVehicule('test-vehicule-1')
+      expect(imported.marque).toBe('Renault')
+    })
+
+    it('should import new interventions', async () => {
+      const client = await addClient({ nom: 'Test', prenom: 'User', telephone: '0600000000' })
+      const vehicule = await addVehicule({ clientId: client.id, marque: 'Renault', immatriculation: 'AB-123-CD' })
+
+      const jsonData = {
+        data: {
+          clients: [],
+          vehicules: [],
+          interventions: [{
+            id: 'test-intervention-1',
+            vehiculeId: vehicule.id,
+            type: 'entretien',
+            description: 'Vidange',
+            updatedAt: new Date().toISOString()
+          }]
+        }
+      }
+
+      const result = await importData(jsonData)
+
+      expect(result.interventions).toBe(1)
+      const imported = await getIntervention('test-intervention-1')
+      expect(imported.description).toBe('Vidange')
+    })
+
+    it('should update existing items if incoming is newer', async () => {
+      const client = await addClient({ nom: 'Original', prenom: 'User', telephone: '0600000000' })
+
+      const jsonData = {
+        data: {
+          clients: [{
+            id: client.id,
+            nom: 'Updated',
+            prenom: 'User',
+            telephone: '0600000000',
+            updatedAt: new Date(Date.now() + 10000).toISOString()
+          }],
+          vehicules: [],
+          interventions: []
+        }
+      }
+
+      const result = await importData(jsonData)
+
+      expect(result.clients).toBe(1)
+      const updated = await getClient(client.id)
+      expect(updated.nom).toBe('Updated')
+    })
+
+    it('should not update existing items if incoming is older', async () => {
+      const client = await addClient({ nom: 'Original', prenom: 'User', telephone: '0600000000' })
+
+      const jsonData = {
+        data: {
+          clients: [{
+            id: client.id,
+            nom: 'OldVersion',
+            prenom: 'User',
+            telephone: '0600000000',
+            updatedAt: new Date(Date.now() - 100000).toISOString()
+          }],
+          vehicules: [],
+          interventions: []
+        }
+      }
+
+      const result = await importData(jsonData)
+
+      expect(result.clients).toBe(0)
+      const unchanged = await getClient(client.id)
+      expect(unchanged.nom).toBe('Original')
+    })
+
+    it('should skip items without id', async () => {
+      const jsonData = {
+        data: {
+          clients: [{ nom: 'NoId', telephone: '0600000000' }],
+          vehicules: [],
+          interventions: []
+        }
+      }
+
+      const result = await importData(jsonData)
+      expect(result.clients).toBe(0)
+    })
+
+    it('should handle empty data arrays', async () => {
+      const jsonData = {
+        data: {}
+      }
+
+      const result = await importData(jsonData)
+
+      expect(result.clients).toBe(0)
+      expect(result.vehicules).toBe(0)
+      expect(result.interventions).toBe(0)
+    })
+  })
+
+  describe('readJSONFile', () => {
+    it('should parse valid JSON file', async () => {
+      const jsonContent = JSON.stringify({ test: 'data' })
+      const file = new File([jsonContent], 'test.json', { type: 'application/json' })
+
+      const result = await readJSONFile(file)
+
+      expect(result).toEqual({ test: 'data' })
+    })
+
+    it('should reject invalid JSON', async () => {
+      const file = new File(['not valid json'], 'test.json', { type: 'application/json' })
+
+      await expect(readJSONFile(file)).rejects.toThrow('Fichier JSON invalide')
     })
   })
 })

@@ -28,6 +28,31 @@ export async function migrateEnAttenteToEnCours() {
   return enAttente.length
 }
 
+export async function migrateCoutToPriceFields() {
+  const db = await getDB()
+  const interventions = await db.getAll('interventions')
+  const toMigrate = interventions.filter(i => i.cout !== undefined)
+
+  if (toMigrate.length > 0) {
+    const tx = db.transaction('interventions', 'readwrite')
+    await Promise.all([
+      ...toMigrate.map(i => {
+        const { cout, ...rest } = i
+        return tx.store.put({
+          ...rest,
+          prixPieces: cout,
+          mainDoeuvre: null,
+          marge: null,
+          updatedAt: new Date().toISOString()
+        })
+      }),
+      tx.done
+    ])
+    triggerAutoSync()
+  }
+  return toMigrate.length
+}
+
 export async function addIntervention(interventionData) {
   if (!interventionData.vehiculeId) {
     throw new Error('Véhicule requis')
@@ -49,7 +74,9 @@ export async function addIntervention(interventionData) {
     description: interventionData.description.trim(),
     date: interventionData.date || now.split('T')[0],
     kilometrage: interventionData.kilometrage || 0,
-    cout: interventionData.cout || null,
+    prixPieces: interventionData.prixPieces || null,
+    mainDoeuvre: interventionData.mainDoeuvre || null,
+    marge: interventionData.marge || null,
     pieces: interventionData.pieces || [],
     statut: interventionData.statut || 'en_cours',
     notes: interventionData.notes?.trim() || '',

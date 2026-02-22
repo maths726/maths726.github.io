@@ -1,5 +1,6 @@
 <script>
   import { TYPES_INTERVENTION, STATUTS_INTERVENTION } from '../../lib/db/interventions.js'
+  import { formatPrice } from '../../lib/utils/format.js'
 
   let { intervention = null, onSubmit, onCancel } = $props()
 
@@ -10,10 +11,19 @@
     description: intervention?.description || '',
     date: intervention?.date || today,
     kilometrage: intervention?.kilometrage || '',
-    cout: intervention?.cout || '',
+    prixPieces: intervention?.prixPieces || '',
+    mainDoeuvre: intervention?.mainDoeuvre || '',
+    marge: intervention?.marge || '',
     pieces: intervention?.pieces?.join(', ') || '',
     statut: intervention?.statut || 'en_cours',
     notes: intervention?.notes || ''
+  })
+
+  let totalPrice = $derived(() => {
+    const pieces = parseFloat(formData.prixPieces) || 0
+    const mo = parseFloat(formData.mainDoeuvre) || 0
+    const margin = parseFloat(formData.marge) || 0
+    return pieces + mo + margin
   })
 
   let errors = $state({})
@@ -34,8 +44,14 @@
       newErrors.date = 'Date requise'
     }
 
-    if (formData.cout && formData.cout < 0) {
-      newErrors.cout = 'Cout invalide'
+    if (formData.prixPieces && parseFloat(formData.prixPieces) < 0) {
+      newErrors.prixPieces = 'Prix invalide'
+    }
+    if (formData.mainDoeuvre && parseFloat(formData.mainDoeuvre) < 0) {
+      newErrors.mainDoeuvre = 'Prix invalide'
+    }
+    if (formData.marge && parseFloat(formData.marge) < 0) {
+      newErrors.marge = 'Marge invalide'
     }
 
     errors = newErrors
@@ -57,7 +73,9 @@
       await onSubmit?.({
         ...formData,
         kilometrage: formData.kilometrage ? parseInt(formData.kilometrage) : 0,
-        cout: formData.cout ? parseFloat(formData.cout) : null,
+        prixPieces: formData.prixPieces ? parseFloat(formData.prixPieces) : null,
+        mainDoeuvre: formData.mainDoeuvre ? parseFloat(formData.mainDoeuvre) : null,
+        marge: formData.marge ? parseFloat(formData.marge) : null,
         pieces
       })
     } finally {
@@ -165,7 +183,7 @@
       class="form-textarea"
       class:error={errors.description}
       bind:value={formData.description}
-      placeholder="Decrivez l'intervention..."
+      placeholder="Décrivez l'intervention..."
       rows="3"
     ></textarea>
     {#if errors.description}
@@ -180,7 +198,7 @@
           <circle cx="12" cy="12" r="10"/>
           <polyline points="12 6 12 12 16 14"/>
         </svg>
-        Kilometrage
+        Kilométrage
       </label>
       <div class="input-with-suffix">
         <input
@@ -195,48 +213,81 @@
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="cout" class="form-label">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="1" x2="12" y2="23"/>
-          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-        </svg>
-        Cout
-      </label>
-      <div class="input-with-suffix">
-        <input
-          type="number"
-          id="cout"
-          class="form-input"
-          class:error={errors.cout}
-          bind:value={formData.cout}
-          placeholder="150.00"
-          min="0"
-          step="0.01"
-        />
-        <span class="input-suffix">EUR</span>
-      </div>
-      {#if errors.cout}
-        <span class="form-error">{errors.cout}</span>
-      {/if}
-    </div>
   </div>
 
-  <div class="form-group">
-    <label for="pieces" class="form-label">
+  <div class="form-group price-section">
+    <label class="form-label">
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        <line x1="12" y1="1" x2="12" y2="23"/>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
       </svg>
-      Pieces changees
+      Prix
     </label>
-    <input
-      type="text"
-      id="pieces"
-      class="form-input"
-      bind:value={formData.pieces}
-      placeholder="Filtre a huile, huile 5W30, filtre a air..."
-    />
-    <span class="form-hint">Separees par des virgules</span>
+    <div class="price-grid">
+      <div class="price-field">
+        <label for="prixPieces" class="price-label">Pièces</label>
+        <div class="input-with-suffix">
+          <input
+            type="number"
+            id="prixPieces"
+            class="form-input"
+            class:error={errors.prixPieces}
+            bind:value={formData.prixPieces}
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+          />
+          <span class="input-suffix">EUR</span>
+        </div>
+        {#if errors.prixPieces}
+          <span class="form-error">{errors.prixPieces}</span>
+        {/if}
+      </div>
+      <div class="price-field">
+        <label for="mainDoeuvre" class="price-label">Main d'œuvre</label>
+        <div class="input-with-suffix">
+          <input
+            type="number"
+            id="mainDoeuvre"
+            class="form-input"
+            class:error={errors.mainDoeuvre}
+            bind:value={formData.mainDoeuvre}
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+          />
+          <span class="input-suffix">EUR</span>
+        </div>
+        {#if errors.mainDoeuvre}
+          <span class="form-error">{errors.mainDoeuvre}</span>
+        {/if}
+      </div>
+      <div class="price-field">
+        <label for="marge" class="price-label">Marge</label>
+        <div class="input-with-suffix">
+          <input
+            type="number"
+            id="marge"
+            class="form-input"
+            class:error={errors.marge}
+            bind:value={formData.marge}
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+          />
+          <span class="input-suffix">EUR</span>
+        </div>
+        {#if errors.marge}
+          <span class="form-error">{errors.marge}</span>
+        {/if}
+      </div>
+    </div>
+    {#if totalPrice() > 0}
+      <div class="price-total">
+        <span class="total-label">Total</span>
+        <span class="total-value">{formatPrice(totalPrice())}</span>
+      </div>
+    {/if}
   </div>
 
   <div class="form-group">
@@ -253,7 +304,7 @@
       id="notes"
       class="form-textarea"
       bind:value={formData.notes}
-      placeholder="Notes ou remarques supplementaires..."
+      placeholder="Notes ou remarques supplémentaires..."
       rows="2"
     ></textarea>
   </div>
@@ -482,6 +533,53 @@
     color: var(--text-muted);
   }
 
+  .price-section {
+    background: var(--bg-primary);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+  }
+
+  .price-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .price-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .price-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .price-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .total-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .total-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+
   .form-actions {
     display: flex;
     justify-content: flex-end;
@@ -558,6 +656,10 @@
       flex-direction: row;
       justify-content: center;
       padding: 0.875rem 1rem;
+    }
+
+    .price-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>

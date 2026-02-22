@@ -49,6 +49,19 @@ export async function exportAndDownload() {
   return data
 }
 
+/**
+ * Check if incoming item is newer than existing item
+ * @param {object} incoming - Item from import
+ * @param {object} existing - Item from local DB
+ * @returns {boolean} True if incoming is newer
+ */
+function isNewer(incoming, existing) {
+  if (!existing) return true
+  if (!incoming.updatedAt) return false
+  if (!existing.updatedAt) return true
+  return new Date(incoming.updatedAt) > new Date(existing.updatedAt)
+}
+
 export async function importData(jsonData) {
   // Validate structure
   if (!jsonData || !jsonData.data) {
@@ -64,34 +77,34 @@ export async function importData(jsonData) {
   let importedVehicules = 0
   let importedInterventions = 0
 
-  // Import clients
+  // Import clients (newest wins)
   for (const client of clients) {
     if (client.id) {
       const existing = await tx.objectStore('clients').get(client.id)
-      if (!existing) {
-        await tx.objectStore('clients').add(client)
+      if (isNewer(client, existing)) {
+        await tx.objectStore('clients').put(client)
         importedClients++
       }
     }
   }
 
-  // Import vehicules
+  // Import vehicules (newest wins)
   for (const vehicule of vehicules) {
     if (vehicule.id) {
       const existing = await tx.objectStore('vehicules').get(vehicule.id)
-      if (!existing) {
-        await tx.objectStore('vehicules').add(vehicule)
+      if (isNewer(vehicule, existing)) {
+        await tx.objectStore('vehicules').put(vehicule)
         importedVehicules++
       }
     }
   }
 
-  // Import interventions
+  // Import interventions (newest wins)
   for (const intervention of interventions) {
     if (intervention.id) {
       const existing = await tx.objectStore('interventions').get(intervention.id)
-      if (!existing) {
-        await tx.objectStore('interventions').add(intervention)
+      if (isNewer(intervention, existing)) {
+        await tx.objectStore('interventions').put(intervention)
         importedInterventions++
       }
     }

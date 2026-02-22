@@ -6,6 +6,12 @@
 
   let typeLabel = $derived(TYPES_INTERVENTION.find(t => t.value === intervention.type)?.label || intervention.type)
   let statutLabel = $derived(STATUTS_INTERVENTION.find(s => s.value === intervention.statut)?.label || intervention.statut)
+  let totalPrice = $derived(
+    ((intervention.prixPieces || 0) + (intervention.mainDoeuvre || 0) + (intervention.marge || 0)) || null
+  )
+  let margeEtMainDoeuvre = $derived(
+    ((intervention.marge || 0) + (intervention.mainDoeuvre || 0)) || null
+  )
 </script>
 
 <button class="intervention-card" onclick={() => onClick?.(intervention)}>
@@ -34,9 +40,14 @@
           {formatKilometrage(intervention.kilometrage)}
         </span>
       {/if}
-      {#if intervention.cout}
+      {#if totalPrice}
         <span class="meta-item meta-price">
-          {formatPrice(intervention.cout)}
+          {formatPrice(totalPrice)}
+        </span>
+      {/if}
+      {#if margeEtMainDoeuvre && margeEtMainDoeuvre > 0}
+        <span class="meta-item meta-marge">
+          + {formatPrice(margeEtMainDoeuvre)}
         </span>
       {/if}
     </div>
@@ -137,6 +148,13 @@
   .meta-price {
     color: var(--primary-color);
     font-weight: 600;
+  }
+
+  .meta-marge {
+    color: #059669;
+    font-weight: 500;
+    font-style: italic;
+    font-size: 0.6875rem;
   }
 
   .estimate {

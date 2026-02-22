@@ -1,27 +1,19 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/pwa-192x192.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#16588E" />
     <meta name="description" content="Application de suivi client pour travaux mécaniques" />
-    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
-    <title>Suivi Client</title>
+    <meta name="theme-color" content="#16588E" />
+    <title>Suivi Client - Mécanicien</title>
+    
+    <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
     <div id="app"></div>
-    <script>
-      // Handle SPA redirect from 404.html
-      (function() {
-        const redirect = sessionStorage.getItem('spa-redirect');
-        if (redirect) {
-          sessionStorage.removeItem('spa-redirect');
-          window.history.replaceState(null, '', redirect);
-        }
-      })();
-    </script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

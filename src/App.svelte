@@ -11,6 +11,7 @@
   import Vehicules from './pages/Vehicules.svelte'
   import VehiculeDetail from './pages/VehiculeDetail.svelte'
   import Parametres from './pages/Parametres.svelte'
+  import Comptabilite from './pages/Comptabilite.svelte'
 
   let page = $state(null)
   let params = $state({})
@@ -29,6 +30,12 @@
       showSplash = false
     }
   }
+  
+  $effect(() => {
+	if (splashAnimationDone && page && showSplash) {
+		showSplash = false
+	}
+  })
 
   // Watch for page becoming ready after animation finished
   $effect(() => {
@@ -41,7 +48,7 @@
   darkMode.init()
 
   onMount(() => {
-    router = navaid('/suivi-client')
+    router = navaid('/')
 
     router.on('/', () => {
       page = Accueil
@@ -77,6 +84,12 @@
       page = Parametres
       params = {}
       currentRoute.set('/parametres')
+    })
+
+    router.on('/comptabilite', () => {
+      page = Comptabilite
+      params = {}
+      currentRoute.set('/comptabilite')
     })
 
     router.listen()
