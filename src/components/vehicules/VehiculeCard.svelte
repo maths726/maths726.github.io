@@ -1,5 +1,5 @@
 <script>
-  import { formatKilometrage, formatImmatriculation } from '../../lib/utils/format.js'
+  import { formatKilometrage, formatImmatriculation, formatMiseEnCirculation } from '../../lib/utils/format.js'
 
   let { vehicule, interventionCount = 0, onClick } = $props()
 </script>
@@ -16,8 +16,8 @@
     <h3 class="vehicule-name">{vehicule.marque} {vehicule.modele}</h3>
     <p class="vehicule-immat">{formatImmatriculation(vehicule.immatriculation)}</p>
     <div class="vehicule-details">
-      {#if vehicule.annee}
-        <span class="detail">{vehicule.annee}</span>
+      {#if vehicule.anneeMiseEnCirculation}
+        <span class="detail">{formatMiseEnCirculation(vehicule.moisMiseEnCirculation, vehicule.anneeMiseEnCirculation)}</span>
       {/if}
       {#if vehicule.kilometrage}
         <span class="detail">{formatKilometrage(vehicule.kilometrage)}</span>

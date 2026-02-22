@@ -56,10 +56,21 @@ export async function runMigrations() {
   if (migrationDone) return
   migrationDone = true
 
-  const { migrateEnAttenteToEnCours } = await import('./interventions.js')
+  const { migrateEnAttenteToEnCours, migrateCoutToPriceFields } = await import('./interventions.js')
   const count = await migrateEnAttenteToEnCours()
   if (count > 0) {
     console.log(`Migrated ${count} intervention(s) from 'en_attente' to 'en_cours'`)
+  }
+
+  const priceCount = await migrateCoutToPriceFields()
+  if (priceCount > 0) {
+    console.log(`Migrated ${priceCount} intervention(s) from 'cout' to price fields`)
+  }
+
+  const { migrateAnneeToMiseEnCirculation } = await import('./vehicules.js')
+  const vehiculeCount = await migrateAnneeToMiseEnCirculation()
+  if (vehiculeCount > 0) {
+    console.log(`Migrated ${vehiculeCount} vehicule(s) from 'annee' to 'moisMiseEnCirculation/anneeMiseEnCirculation'`)
   }
 }
 

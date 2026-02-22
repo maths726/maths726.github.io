@@ -1,5 +1,6 @@
 import { getDB } from './index.js'
 import { v4 as uuidv4 } from 'uuid'
+import { triggerAutoSync } from '../sync/autosync.js'
 
 export async function addClient(clientData) {
   if (!clientData.nom || !clientData.nom.trim()) {
@@ -25,6 +26,7 @@ export async function addClient(clientData) {
   }
 
   await db.add('clients', client)
+  triggerAutoSync()
   return client
 }
 
@@ -36,7 +38,7 @@ export async function getClient(id) {
 export async function getAllClients() {
   const db = await getDB()
   const clients = await db.getAll('clients')
-  return clients.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  return clients.sort((a, b) => (a.prenom || '').localeCompare(b.prenom || '', 'fr'))
 }
 
 export async function updateClient(id, updates) {
@@ -75,12 +77,14 @@ export async function updateClient(id, updates) {
   }
 
   await db.put('clients', updatedClient)
+  triggerAutoSync()
   return updatedClient
 }
 
 export async function deleteClient(id) {
   const db = await getDB()
   await db.delete('clients', id)
+  triggerAutoSync()
 }
 
 export async function searchClients(query) {

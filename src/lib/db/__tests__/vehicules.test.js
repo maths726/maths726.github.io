@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { addVehicule, getVehicule, getAllVehicules, getVehiculesByClientId, updateVehicule, deleteVehicule, deleteVehiculesByClientId, searchVehicules } from '../vehicules.js'
+import { addVehicule, getVehicule, getAllVehicules, getVehiculesByClientId, updateVehicule, deleteVehicule, deleteVehiculesByClientId, searchVehicules, migrateAnneeToMiseEnCirculation } from '../vehicules.js'
 import { addClient } from '../clients.js'
-import { resetDBInstance } from '../index.js'
+import { resetDBInstance, getDB } from '../index.js'
 
 describe('vehicules db', () => {
   let clientId
@@ -62,14 +62,16 @@ describe('vehicules db', () => {
         marque: 'Renault',
         modele: 'Clio',
         immatriculation: 'AB-123-CD',
-        annee: 2020,
+        moisMiseEnCirculation: 6,
+        anneeMiseEnCirculation: 2020,
         vin: 'VF1234567890',
         kilometrage: 50000,
         notes: 'Bon état'
       }
       const result = await addVehicule(vehiculeData)
 
-      expect(result.annee).toBe(2020)
+      expect(result.moisMiseEnCirculation).toBe(6)
+      expect(result.anneeMiseEnCirculation).toBe(2020)
       expect(result.vin).toBe('VF1234567890')
       expect(result.kilometrage).toBe(50000)
       expect(result.notes).toBe('Bon état')
@@ -255,6 +257,71 @@ describe('vehicules db', () => {
 
       const result = await searchVehicules('toyota')
       expect(result).toEqual([])
+    })
+  })
+
+  describe('migrateAnneeToMiseEnCirculation', () => {
+    it('should migrate old annee field to new fields', async () => {
+      // Insert a vehicule with the old format directly into DB
+      const db = await getDB()
+      const oldVehicule = {
+        id: 'test-migration-id',
+        clientId,
+        marque: 'Renault',
+        modele: 'Clio',
+        immatriculation: 'ZZ-999-ZZ',
+        annee: 2018,
+        vin: '',
+        kilometrage: 0,
+        notes: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+      await db.add('vehicules', oldVehicule)
+
+      // Run migration
+      const count = await migrateAnneeToMiseEnCirculation()
+      expect(count).toBe(1)
+
+      // Verify the vehicule was migrated
+      const migrated = await getVehicule('test-migration-id')
+      expect(migrated.anneeMiseEnCirculation).toBe(2018)
+      expect(migrated.moisMiseEnCirculation).toBe(1) // Janvier par défaut
+      expect(migrated.annee).toBeUndefined()
+    })
+
+    it('should not migrate vehicules already in new format', async () => {
+      // Add a vehicule with new format
+      await addVehicule({
+        clientId,
+        marque: 'Peugeot',
+        immatriculation: 'YY-888-YY',
+        moisMiseEnCirculation: 6,
+        anneeMiseEnCirculation: 2020
+      })
+
+      // Run migration
+      const count = await migrateAnneeToMiseEnCirculation()
+      expect(count).toBe(0)
+
+      // Verify the vehicule was not changed
+      const vehicules = await getAllVehicules()
+      const vehicule = vehicules.find(v => v.immatriculation === 'YY-888-YY')
+      expect(vehicule.moisMiseEnCirculation).toBe(6)
+      expect(vehicule.anneeMiseEnCirculation).toBe(2020)
+    })
+
+    it('should handle vehicules without annee field', async () => {
+      // Add a vehicule without annee
+      await addVehicule({
+        clientId,
+        marque: 'Citroen',
+        immatriculation: 'XX-777-XX'
+      })
+
+      // Run migration
+      const count = await migrateAnneeToMiseEnCirculation()
+      expect(count).toBe(0)
     })
   })
 })

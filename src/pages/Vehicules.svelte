@@ -7,6 +7,7 @@
   import { vehicules } from '../lib/stores/vehicules.js'
   import { getAllClients } from '../lib/db/clients.js'
   import { getAllInterventions } from '../lib/db/interventions.js'
+  import { formatMiseEnCirculation } from '../lib/utils/format.js'
 
   let { navigate } = $props()
 
@@ -45,7 +46,7 @@
 </script>
 
 <div class="page">
-  <Header title="Vehicules" />
+  <Header title="Véhicules" />
 
   <main class="main-content">
     <div class="toolbar">
@@ -60,8 +61,8 @@
       {#if $vehicules.length === 0}
         <EmptyState
           icon="car"
-          title={searchQuery ? "Aucun resultat" : "Aucun vehicule"}
-          message={searchQuery ? "Aucun vehicule ne correspond a votre recherche" : "Ajoutez des vehicules depuis la page d'un client"}
+          title={searchQuery ? "Aucun résultat" : "Aucun véhicule"}
+          message={searchQuery ? "Aucun véhicule ne correspond à votre recherche" : "Ajoutez des véhicules depuis la page d'un client"}
         />
       {:else}
         <div class="list-container">
@@ -81,8 +82,8 @@
                   <p class="vehicule-client">{getClientName(vehicule.clientId)}</p>
                 {/if}
                 <div class="vehicule-details">
-                  {#if vehicule.annee}
-                    <span class="detail">{vehicule.annee}</span>
+                  {#if vehicule.anneeMiseEnCirculation}
+                    <span class="detail">{formatMiseEnCirculation(vehicule.moisMiseEnCirculation, vehicule.anneeMiseEnCirculation)}</span>
                   {/if}
                   {#if interventionCounts[vehicule.id] > 0}
                     <span class="detail interventions">

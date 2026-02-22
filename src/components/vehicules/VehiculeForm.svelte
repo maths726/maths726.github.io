@@ -4,7 +4,8 @@
   let formData = $state({
     marque: vehicule?.marque || '',
     modele: vehicule?.modele || '',
-    annee: vehicule?.annee || '',
+    moisMiseEnCirculation: vehicule?.moisMiseEnCirculation || '',
+    anneeMiseEnCirculation: vehicule?.anneeMiseEnCirculation || '',
     immatriculation: vehicule?.immatriculation || '',
     vin: vehicule?.vin || '',
     notes: vehicule?.notes || ''
@@ -26,8 +27,12 @@
       newErrors.immatriculation = 'Immatriculation requise'
     }
 
-    if (formData.annee && (formData.annee < 1900 || formData.annee > currentYear + 1)) {
-      newErrors.annee = 'Année invalide'
+    if (formData.anneeMiseEnCirculation && (formData.anneeMiseEnCirculation < 1900 || formData.anneeMiseEnCirculation > currentYear + 1)) {
+      newErrors.anneeMiseEnCirculation = 'Année invalide'
+    }
+
+    if (formData.moisMiseEnCirculation && (formData.moisMiseEnCirculation < 1 || formData.moisMiseEnCirculation > 12)) {
+      newErrors.moisMiseEnCirculation = 'Mois invalide'
     }
 
     errors = newErrors
@@ -43,7 +48,8 @@
     try {
       await onSubmit?.({
         ...formData,
-        annee: formData.annee ? parseInt(formData.annee) : null
+        moisMiseEnCirculation: formData.moisMiseEnCirculation ? parseInt(formData.moisMiseEnCirculation) : null,
+        anneeMiseEnCirculation: formData.anneeMiseEnCirculation ? parseInt(formData.anneeMiseEnCirculation) : null
       })
     } finally {
       isSubmitting = false
@@ -97,19 +103,44 @@
     </div>
 
     <div class="form-group">
-      <label for="annee" class="form-label">Année</label>
-      <input
-        type="number"
-        id="annee"
-        class="form-input"
-        class:error={errors.annee}
-        bind:value={formData.annee}
-        placeholder={currentYear}
-        min="1900"
-        max={currentYear + 1}
-      />
-      {#if errors.annee}
-        <span class="form-error">{errors.annee}</span>
+      <label for="moisMiseEnCirculation" class="form-label">Mise en circulation</label>
+      <div class="date-row">
+        <select
+          id="moisMiseEnCirculation"
+          class="form-input"
+          class:error={errors.moisMiseEnCirculation}
+          bind:value={formData.moisMiseEnCirculation}
+        >
+          <option value="">Mois</option>
+          <option value="1">Janvier</option>
+          <option value="2">Février</option>
+          <option value="3">Mars</option>
+          <option value="4">Avril</option>
+          <option value="5">Mai</option>
+          <option value="6">Juin</option>
+          <option value="7">Juillet</option>
+          <option value="8">Août</option>
+          <option value="9">Septembre</option>
+          <option value="10">Octobre</option>
+          <option value="11">Novembre</option>
+          <option value="12">Décembre</option>
+        </select>
+        <input
+          type="number"
+          id="anneeMiseEnCirculation"
+          class="form-input"
+          class:error={errors.anneeMiseEnCirculation}
+          bind:value={formData.anneeMiseEnCirculation}
+          placeholder={currentYear}
+          min="1900"
+          max={currentYear + 1}
+        />
+      </div>
+      {#if errors.moisMiseEnCirculation}
+        <span class="form-error">{errors.moisMiseEnCirculation}</span>
+      {/if}
+      {#if errors.anneeMiseEnCirculation}
+        <span class="form-error">{errors.anneeMiseEnCirculation}</span>
       {/if}
     </div>
   </div>
@@ -157,6 +188,12 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
+  }
+
+  .date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
   }
 
   .form-group {

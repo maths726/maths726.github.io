@@ -1,5 +1,6 @@
 import { getDB } from './index.js'
 import { v4 as uuidv4 } from 'uuid'
+import { triggerAutoSync } from '../sync/autosync.js'
 
 export async function addVehicule(vehiculeData) {
   if (!vehiculeData.clientId) {
@@ -20,7 +21,8 @@ export async function addVehicule(vehiculeData) {
     clientId: vehiculeData.clientId,
     marque: vehiculeData.marque.trim(),
     modele: vehiculeData.modele?.trim() || '',
-    annee: vehiculeData.annee || null,
+    moisMiseEnCirculation: vehiculeData.moisMiseEnCirculation || null,
+    anneeMiseEnCirculation: vehiculeData.anneeMiseEnCirculation || null,
     immatriculation: vehiculeData.immatriculation.trim().toUpperCase(),
     vin: vehiculeData.vin?.trim() || '',
     kilometrage: vehiculeData.kilometrage || 0,
@@ -30,6 +32,7 @@ export async function addVehicule(vehiculeData) {
   }
 
   await db.add('vehicules', vehicule)
+  triggerAutoSync()
   return vehicule
 }
 
@@ -84,12 +87,14 @@ export async function updateVehicule(id, updates) {
   }
 
   await db.put('vehicules', updatedVehicule)
+  triggerAutoSync()
   return updatedVehicule
 }
 
 export async function deleteVehicule(id) {
   const db = await getDB()
   await db.delete('vehicules', id)
+  triggerAutoSync()
 }
 
 export async function deleteVehiculesByClientId(clientId) {
@@ -100,6 +105,7 @@ export async function deleteVehiculesByClientId(clientId) {
     ...vehicules.map(v => tx.store.delete(v.id)),
     tx.done
   ])
+  triggerAutoSync()
 }
 
 export async function searchVehicules(query) {
@@ -122,4 +128,29 @@ export async function searchVehicules(query) {
       field.toLowerCase().includes(normalizedQuery)
     )
   })
+}
+
+/**
+ * Migration: convertit l'ancien champ 'annee' vers les nouveaux champs
+ * 'moisMiseEnCirculation' (défaut: 1 = Janvier) et 'anneeMiseEnCirculation'
+ */
+export async function migrateAnneeToMiseEnCirculation() {
+  const db = await getDB()
+  const vehicules = await db.getAll('vehicules')
+  let count = 0
+
+  const tx = db.transaction('vehicules', 'readwrite')
+
+  for (const vehicule of vehicules) {
+    if (vehicule.annee && !vehicule.anneeMiseEnCirculation) {
+      vehicule.anneeMiseEnCirculation = vehicule.annee
+      vehicule.moisMiseEnCirculation = 1 // Janvier par défaut
+      delete vehicule.annee
+      await tx.store.put(vehicule)
+      count++
+    }
+  }
+
+  await tx.done
+  return count
 }

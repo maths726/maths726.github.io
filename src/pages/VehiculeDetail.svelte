@@ -10,7 +10,7 @@
   import { vehicules } from '../lib/stores/vehicules.js'
   import { interventions } from '../lib/stores/interventions.js'
   import { showToast } from '../lib/stores/ui.js'
-  import { formatKilometrage, formatImmatriculation, formatDateLong } from '../lib/utils/format.js'
+  import { formatKilometrage, formatImmatriculation, formatDateLong, formatMiseEnCirculation } from '../lib/utils/format.js'
   import { deleteInterventionsByVehiculeId } from '../lib/db/interventions.js'
 
   let { vehiculeId, navigate } = $props()
@@ -150,10 +150,10 @@
         {/if}
 
         <div class="info-grid">
-          {#if vehicule.annee}
+          {#if vehicule.anneeMiseEnCirculation}
             <div class="info-item">
-              <span class="info-label">Année</span>
-              <span class="info-value">{vehicule.annee}</span>
+              <span class="info-label">Mise en circulation</span>
+              <span class="info-value">{formatMiseEnCirculation(vehicule.moisMiseEnCirculation, vehicule.anneeMiseEnCirculation)}</span>
             </div>
           {/if}
           {#if lastKilometrage}
