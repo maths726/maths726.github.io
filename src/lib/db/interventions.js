@@ -1,5 +1,6 @@
 import { getDB } from './index.js'
 import { v4 as uuidv4 } from 'uuid'
+import { triggerAutoSync } from '../sync/autosync.js'
 
 export const TYPES_INTERVENTION = [
   { value: 'entretien', label: 'Entretien' },
@@ -7,10 +8,25 @@ export const TYPES_INTERVENTION = [
 ]
 
 export const STATUTS_INTERVENTION = [
-  { value: 'en_attente', label: 'En attente' },
   { value: 'en_cours', label: 'En cours' },
   { value: 'termine', label: 'Terminé' }
 ]
+
+export async function migrateEnAttenteToEnCours() {
+  const db = await getDB()
+  const interventions = await db.getAll('interventions')
+  const enAttente = interventions.filter(i => i.statut === 'en_attente')
+
+  if (enAttente.length > 0) {
+    const tx = db.transaction('interventions', 'readwrite')
+    await Promise.all([
+      ...enAttente.map(i => tx.store.put({ ...i, statut: 'en_cours', updatedAt: new Date().toISOString() })),
+      tx.done
+    ])
+    triggerAutoSync()
+  }
+  return enAttente.length
+}
 
 export async function addIntervention(interventionData) {
   if (!interventionData.vehiculeId) {
@@ -42,6 +58,7 @@ export async function addIntervention(interventionData) {
   }
 
   await db.add('interventions', intervention)
+  triggerAutoSync()
   return intervention
 }
 
@@ -87,12 +104,14 @@ export async function updateIntervention(id, updates) {
   }
 
   await db.put('interventions', updatedIntervention)
+  triggerAutoSync()
   return updatedIntervention
 }
 
 export async function deleteIntervention(id) {
   const db = await getDB()
   await db.delete('interventions', id)
+  triggerAutoSync()
 }
 
 export async function deleteInterventionsByVehiculeId(vehiculeId) {
@@ -103,4 +122,5 @@ export async function deleteInterventionsByVehiculeId(vehiculeId) {
     ...interventions.map(i => tx.store.delete(i.id)),
     tx.done
   ])
+  triggerAutoSync()
 }

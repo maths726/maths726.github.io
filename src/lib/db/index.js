@@ -5,6 +5,7 @@ const DB_VERSION = 1
 
 let dbInstance = null
 let dbCounter = 0
+let migrationDone = false
 
 function getDBName() {
   // In test environment, use unique DB names to avoid conflicts
@@ -51,6 +52,17 @@ export async function getDB() {
   return dbInstance
 }
 
+export async function runMigrations() {
+  if (migrationDone) return
+  migrationDone = true
+
+  const { migrateEnAttenteToEnCours } = await import('./interventions.js')
+  const count = await migrateEnAttenteToEnCours()
+  if (count > 0) {
+    console.log(`Migrated ${count} intervention(s) from 'en_attente' to 'en_cours'`)
+  }
+}
+
 export async function clearDB() {
   const db = await getDB()
   const tx = db.transaction(['clients', 'vehicules', 'interventions'], 'readwrite')
@@ -68,4 +80,5 @@ export function resetDBInstance() {
     dbInstance = null
   }
   dbCounter++
+  migrationDone = false
 }

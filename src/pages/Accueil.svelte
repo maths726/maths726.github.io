@@ -6,24 +6,23 @@
   import { getAllInterventions } from '../lib/db/interventions.js'
   import { getAllVehicules } from '../lib/db/vehicules.js'
   import { getAllClients } from '../lib/db/clients.js'
+  import { runMigrations } from '../lib/db/index.js'
   import { formatDate, formatPrice } from '../lib/utils/format.js'
-  import { TYPES_INTERVENTION, STATUTS_INTERVENTION } from '../lib/db/interventions.js'
+  import { TYPES_INTERVENTION } from '../lib/db/interventions.js'
   import { interventions as interventionsStore } from '../lib/stores/interventions.js'
   import { showToast } from '../lib/stores/ui.js'
 
   let { navigate } = $props()
 
-  let interventionsEnAttente = $state([])
   let interventionsEnCours = $state([])
   let vehiculesMap = $state({})
   let clientsMap = $state({})
   let loading = $state(true)
-  let enAttenteExpanded = $state(true)
-  let enCoursExpanded = $state(true)
   let showEditModal = $state(false)
   let selectedIntervention = $state(null)
 
   onMount(async () => {
+    await runMigrations()
     await loadData()
   })
 
@@ -44,7 +43,6 @@
       return acc
     }, {})
 
-    interventionsEnAttente = interventions.filter(i => i.statut === 'en_attente')
     interventionsEnCours = interventions.filter(i => i.statut === 'en_cours')
     loading = false
   }
@@ -81,21 +79,6 @@
     showEditModal = false
     selectedIntervention = null
   }
-
-  function showEnAttenteOnly() {
-    enAttenteExpanded = true
-    enCoursExpanded = false
-  }
-
-  function showEnCoursOnly() {
-    enAttenteExpanded = false
-    enCoursExpanded = true
-  }
-
-  function showAll() {
-    enAttenteExpanded = true
-    enCoursExpanded = true
-  }
 </script>
 
 <div class="page">
@@ -110,105 +93,15 @@
     {:else}
       <!-- Stats summary -->
       <div class="stats-bar">
-        <button class="stat-item" class:active={enAttenteExpanded && !enCoursExpanded} onclick={showEnAttenteOnly}>
-          <span class="stat-number">{interventionsEnAttente.length}</span>
-          <span class="stat-label">En attente</span>
-        </button>
-        <div class="stat-divider"></div>
-        <button class="stat-item" class:active={!enAttenteExpanded && enCoursExpanded} onclick={showEnCoursOnly}>
+        <div class="stat-item">
           <span class="stat-number">{interventionsEnCours.length}</span>
           <span class="stat-label">En cours</span>
-        </button>
-        <div class="stat-divider"></div>
-        <button class="stat-item" class:active={enAttenteExpanded && enCoursExpanded} onclick={showAll}>
-          <span class="stat-number">{interventionsEnAttente.length + interventionsEnCours.length}</span>
-          <span class="stat-label">Total actif</span>
-        </button>
+        </div>
       </div>
-
-      <!-- En attente section -->
-      <section class="interventions-section">
-        <button class="section-header" onclick={() => enAttenteExpanded = !enAttenteExpanded}>
-          <div class="section-header-left">
-            <div class="section-icon waiting">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
-            </div>
-            <div class="section-title-group">
-              <h2 class="section-title">En attente</h2>
-              <span class="section-subtitle">{interventionsEnAttente.length} intervention{interventionsEnAttente.length > 1 ? 's' : ''}</span>
-            </div>
-          </div>
-          <svg class="chevron" class:expanded={enAttenteExpanded} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </button>
-        {#if enAttenteExpanded}
-          {#if interventionsEnAttente.length === 0}
-            <div class="empty-state">
-              <div class="empty-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                  <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
-              </div>
-              <p>Aucune intervention en attente</p>
-            </div>
-          {:else}
-            <div class="interventions-list">
-              {#each interventionsEnAttente as intervention (intervention.id)}
-                {@const info = getVehiculeInfo(intervention.vehiculeId)}
-                <button class="intervention-card" onclick={() => handleInterventionClick(intervention)}>
-                  <div class="card-left">
-                    <div class="type-indicator type-{intervention.type}"></div>
-                  </div>
-                  <div class="card-content">
-                    <div class="card-header">
-                      <span class="type-badge type-{intervention.type}">{getTypeLabel(intervention.type)}</span>
-                      <span class="date">{formatDate(intervention.date)}</span>
-                    </div>
-                    <p class="description">{intervention.description}</p>
-                    {#if info.vehicule}
-                      <div class="vehicule-row">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
-                          <circle cx="6.5" cy="16.5" r="2.5"/>
-                          <circle cx="16.5" cy="16.5" r="2.5"/>
-                        </svg>
-                        <span class="vehicule">{info.vehicule.marque} {info.vehicule.modele}</span>
-                        <span class="immat">{info.vehicule.immatriculation}</span>
-                      </div>
-                    {/if}
-                    {#if info.client}
-                      <div class="client-row">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                          <circle cx="12" cy="7" r="4"/>
-                        </svg>
-                        <span>{info.client.prenom} {info.client.nom}</span>
-                      </div>
-                    {/if}
-                  </div>
-                  <div class="card-right">
-                    {#if intervention.cout}
-                      <div class="cout">{formatPrice(intervention.cout)}</div>
-                    {/if}
-                    <svg class="card-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="9 18 15 12 9 6"/>
-                    </svg>
-                  </div>
-                </button>
-              {/each}
-            </div>
-          {/if}
-        {/if}
-      </section>
 
       <!-- En cours section -->
       <section class="interventions-section">
-        <button class="section-header ongoing" onclick={() => enCoursExpanded = !enCoursExpanded}>
+        <div class="section-header ongoing">
           <div class="section-header-left">
             <div class="section-icon ongoing">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -220,12 +113,8 @@
               <span class="section-subtitle">{interventionsEnCours.length} intervention{interventionsEnCours.length > 1 ? 's' : ''}</span>
             </div>
           </div>
-          <svg class="chevron" class:expanded={enCoursExpanded} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </button>
-        {#if enCoursExpanded}
-          {#if interventionsEnCours.length === 0}
+        </div>
+        {#if interventionsEnCours.length === 0}
             <div class="empty-state">
               <div class="empty-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -281,7 +170,6 @@
               {/each}
             </div>
           {/if}
-        {/if}
       </section>
     {/if}
   </main>
@@ -350,20 +238,7 @@
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
-    background: transparent;
-    border: none;
     padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-  }
-
-  .stat-item:hover {
-    background: var(--bg-primary);
-  }
-
-  .stat-item.active {
-    background: var(--primary-lighter);
   }
 
   .stat-number {
@@ -381,12 +256,6 @@
     font-weight: 500;
   }
 
-  .stat-divider {
-    width: 1px;
-    height: 40px;
-    background: var(--border-color);
-  }
-
   /* Section styles */
   .interventions-section {
     margin-bottom: 1.5rem;
@@ -401,14 +270,8 @@
     background: var(--bg-card);
     border: none;
     border-radius: var(--radius-lg);
-    cursor: pointer;
     margin-bottom: 1rem;
     box-shadow: var(--shadow-sm);
-    transition: all var(--transition-normal);
-  }
-
-  .section-header:hover {
-    box-shadow: var(--shadow-md);
   }
 
   .section-header-left {
@@ -424,11 +287,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .section-icon.waiting {
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    color: #6b7280;
   }
 
   .section-icon.ongoing {
@@ -453,15 +311,6 @@
   .section-subtitle {
     font-size: 0.8125rem;
     color: var(--text-secondary);
-  }
-
-  .chevron {
-    color: var(--text-muted);
-    transition: transform var(--transition-normal);
-  }
-
-  .chevron.expanded {
-    transform: rotate(180deg);
   }
 
   /* Empty state */

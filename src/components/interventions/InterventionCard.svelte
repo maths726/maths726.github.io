@@ -99,11 +99,6 @@
     border-radius: 4px;
   }
 
-  .statut-en_attente {
-    background: #e5e7eb;
-    color: #4b5563;
-  }
-
   .statut-en_cours {
     background: #fef3c7;
     color: #b45309;

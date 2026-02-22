@@ -28,8 +28,7 @@ describe('interventions db', () => {
 
     it('should export STATUTS_INTERVENTION', () => {
       expect(STATUTS_INTERVENTION).toBeDefined()
-      expect(STATUTS_INTERVENTION.length).toBe(3)
-      expect(STATUTS_INTERVENTION.some(s => s.value === 'en_attente')).toBe(true)
+      expect(STATUTS_INTERVENTION.length).toBe(2)
       expect(STATUTS_INTERVENTION.some(s => s.value === 'en_cours')).toBe(true)
       expect(STATUTS_INTERVENTION.some(s => s.value === 'termine')).toBe(true)
     })

@@ -66,7 +66,6 @@
   }
 
   function getStatusIcon(value) {
-    if (value === 'en_attente') return 'clock'
     if (value === 'en_cours') return 'tool'
     return 'check'
   }
@@ -84,12 +83,7 @@
           onclick={() => formData.statut = statut.value}
         >
           <span class="status-icon">
-            {#if statut.value === 'en_attente'}
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
-            {:else if statut.value === 'en_cours'}
+            {#if statut.value === 'en_cours'}
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
               </svg>
@@ -339,11 +333,6 @@
     transition: all var(--transition-normal);
   }
 
-  .status-btn.status-en_attente .status-icon {
-    background: #f3f4f6;
-    color: #6b7280;
-  }
-
   .status-btn.status-en_cours .status-icon {
     background: #fef3c7;
     color: #b45309;
@@ -367,14 +356,6 @@
 
   .status-btn.active .status-text {
     color: var(--primary-color);
-  }
-
-  .status-btn.active.status-en_attente {
-    border-color: #6b7280;
-    background: #f9fafb;
-  }
-  .status-btn.active.status-en_attente .status-text {
-    color: #374151;
   }
 
   .status-btn.active.status-en_cours {
