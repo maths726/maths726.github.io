@@ -1,5 +1,5 @@
 <script>
-  import { formatPrice } from '../../lib/utils/format'
+  import { formatPrice, formatTemps } from '../../lib/utils/format'
   import ChartWrapper from './ChartWrapper.svelte'
 
   let {
@@ -13,7 +13,8 @@
     euro: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M15.5 8.5h-7a1.5 1.5 0 000 3h7a1.5 1.5 0 010 3h-7a1.5 1.5 0 000 3h7"/></svg>',
     trendingUp: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
     percent: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><line x1="18" y1="18" x2="18" y2="18"/><circle cx="18" cy="18" r="2"/><path d="M4 20l16-16"/></svg>',
-    wrench: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 1 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>'
+    wrench: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 1 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+    clock: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
   }
 
   // Fonction pour obtenir la couleur d'une icône KPI
@@ -23,8 +24,12 @@
         return 'var(--primary-color)'
       case 'margin':
         return 'var(--accent-green)'
+      case 'hours':
+        return '#3b82f6'
       case 'marginPercent':
         return 'var(--primary-light)'
+      case 'hourlyRate':
+        return '#8b5cf6'
       case 'intervention':
         return 'var(--accent-orange)'
       default:
@@ -80,11 +85,14 @@
     }
   }
 
+  // Filtrer les éléments qui ne sont pas des totaux calculés pour le graphique
+  let displayComponentData = $derived(componentData.filter(item => !item.isTotal))
+
   // Données pour le graphique donut
   let doughnutChartData = $derived({
-    labels: componentData.map(item => item.name),
+    labels: displayComponentData.map(item => item.name),
     datasets: [{
-      data: componentData.map(item => item.value || 0),
+      data: displayComponentData.map(item => item.value || 0),
       backgroundColor: [
         '#16588E',
         '#8B5CF6',
@@ -139,6 +147,17 @@
       <div class="kpi-value">{formatPrice(metrics.margin || 0)}</div>
     </div>
 
+    <!-- KPI: Heures totales -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-icon" style="background-color: {getKPIColor('hours')}; opacity: 0.15;">
+          {@html icons.clock}
+        </div>
+        <div class="kpi-label">Heures totales</div>
+      </div>
+      <div class="kpi-value">{metrics.totalHours > 0 ? formatTemps(metrics.totalHours) : '—'}</div>
+    </div>
+
     <!-- KPI: Taux de marge -->
     <div class="kpi-card">
       <div class="kpi-header">
@@ -148,6 +167,17 @@
         <div class="kpi-label">Taux de marge</div>
       </div>
       <div class="kpi-value">{(metrics.marginPercent || 0).toFixed(1)}%</div>
+    </div>
+
+    <!-- KPI: Tarif horaire -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-icon" style="background-color: {getKPIColor('hourlyRate')}; opacity: 0.15;">
+          {@html icons.euro}
+        </div>
+        <div class="kpi-label">Taux horaire</div>
+      </div>
+      <div class="kpi-value">{metrics.hourlyRate > 0 ? formatPrice(metrics.hourlyRate) + '/h' : '—'}</div>
     </div>
 
     <!-- KPI: Interventions -->
@@ -205,18 +235,18 @@
   /* KPIs Grid */
   .kpis-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
   }
 
   .kpi-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1.5rem;
+    border-radius: 16px;
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
     transition: all var(--transition-normal);
     box-shadow: var(--shadow-sm);
   }
@@ -230,13 +260,13 @@
   .kpi-header {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .kpi-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -245,22 +275,23 @@
   }
 
   .kpi-icon :global(svg) {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     stroke: currentColor;
   }
 
   .kpi-label {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
     font-weight: 500;
   }
 
   .kpi-value {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
     line-height: 1.2;
+    margin-left: 0.25rem;
   }
 
   /* Sections */
@@ -310,28 +341,40 @@
   }
 
   /* Responsive */
+  @media (max-width: 1024px) {
+    .kpis-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+  }
+
   @media (max-width: 768px) {
     .kpis-grid {
       grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
     .kpi-card {
       padding: 1rem;
-      gap: 0.75rem;
+      gap: 0.5rem;
     }
 
     .kpi-value {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
     }
 
     .kpi-label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
     }
 
     .kpi-icon {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
+    }
+
+    .kpi-icon :global(svg) {
+      width: 18px;
+      height: 18px;
     }
 
     .line-chart-wrapper {
@@ -345,7 +388,7 @@
 
   @media (max-width: 640px) {
     .kpis-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, 1fr);
     }
 
     .section {
@@ -362,7 +405,7 @@
     }
 
     .doughnut-chart-wrapper {
-      height: 250px;
+      height: 320px;
     }
   }
 </style>

@@ -14,6 +14,8 @@ export function calculateKPIs(aggregated) {
 		totalPieces = 0,
 		totalLabor = 0,
 		totalMargin = 0,
+		totalTemps = 0,
+		totalLaborWithTemps = 0,
 		count = 0
 	} = aggregated || {};
 
@@ -29,12 +31,20 @@ export function calculateKPIs(aggregated) {
 		? Math.round((totalRevenue / count) * 100) / 100
 		: 0;
 
+	// Heures totales et taux horaire (uniquement interventions avec temps renseigné)
+	const totalHours = Math.round(totalTemps * 10) / 10;
+	const hourlyRate = totalTemps > 0
+		? Math.round((totalLaborWithTemps / totalTemps) * 100) / 100
+		: 0;
+
 	return {
 		revenue,
 		margin,
 		marginPercent,
 		interventionCount: count,
-		avgRevenue
+		avgRevenue,
+		totalHours,
+		hourlyRate
 	};
 }
 
@@ -81,6 +91,7 @@ export function calculateComponentRatios(aggregated) {
 		totalPieces = 0,
 		totalLabor = 0,
 		totalMargin = 0,
+		totalMarginPieces = 0,
 		totalRevenue = 0
 	} = aggregated || {};
 
@@ -101,9 +112,15 @@ export function calculateComponentRatios(aggregated) {
 			percent: calculatePercent(totalLabor)
 		},
 		{
-			name: 'Marge',
+			name: 'Marge pièces',
+			value: Math.round(totalMarginPieces * 100) / 100,
+			percent: calculatePercent(totalMarginPieces)
+		},
+		{
+			name: 'Marge totale',
 			value: Math.round(totalMargin * 100) / 100,
-			percent: calculatePercent(totalMargin)
+			percent: calculatePercent(totalMargin),
+			isTotal: true
 		}
 	];
 }

@@ -160,6 +160,7 @@ export function groupByPeriod(interventions, periodType = 'month', dateRange = '
 				pieces: 0,
 				labor: 0,
 				margin: 0,
+				marginPieces: 0,
 				count: 0
 			});
 		}
@@ -206,12 +207,16 @@ export function groupByPeriod(interventions, periodType = 'month', dateRange = '
 
 			if (grouped.has(key)) {
 				const group = grouped.get(key);
-				group.pieces += Number(intervention.prixPieces) || 0;
-				group.labor += Number(intervention.mainDoeuvre) || 0;
-				group.margin += Number(intervention.marge) || 0;
-				group.revenue += (Number(intervention.prixPieces) || 0) +
-					(Number(intervention.mainDoeuvre) || 0) +
-					(Number(intervention.marge) || 0);
+				const pieces = Number(intervention.prixPieces) || 0;
+				const labor = Number(intervention.mainDoeuvre) || 0;
+				const marginPieces = Number(intervention.marge) || 0;
+
+				group.pieces += pieces;
+				group.labor += labor;
+				group.marginPieces += marginPieces;
+				// La marge totale = marge pièces + main d'œuvre
+				group.margin += marginPieces + labor;
+				group.revenue += pieces + labor + marginPieces;
 				group.count += 1;
 			}
 		});
@@ -233,27 +238,43 @@ export function aggregateFinancials(interventions) {
 			totalPieces: 0,
 			totalLabor: 0,
 			totalMargin: 0,
+			totalMarginPieces: 0,
+			totalTemps: 0,
+			totalLaborWithTemps: 0,
 			count: 0
 		};
 	}
 
 	let totalPieces = 0;
 	let totalLabor = 0;
-	let totalMargin = 0;
+	let totalMarginPieces = 0;
+	let totalTemps = 0;
+	let totalLaborWithTemps = 0;
 
 	interventions.forEach((intervention) => {
 		totalPieces += Number(intervention.prixPieces) || 0;
 		totalLabor += Number(intervention.mainDoeuvre) || 0;
-		totalMargin += Number(intervention.marge) || 0;
+		totalMarginPieces += Number(intervention.marge) || 0;
+		const temps = Number(intervention.tempsTravail) || 0;
+		totalTemps += temps;
+		// Main d'œuvre uniquement pour les interventions avec temps renseigné
+		if (temps > 0) {
+			totalLaborWithTemps += Number(intervention.mainDoeuvre) || 0;
+		}
 	});
 
-	const totalRevenue = totalPieces + totalLabor + totalMargin;
+	const totalRevenue = totalPieces + totalLabor + totalMarginPieces;
+	// La marge totale = marge pièces + main d'œuvre (la MO est entièrement considérée comme marge)
+	const totalMargin = totalMarginPieces + totalLabor;
 
 	return {
 		totalRevenue,
 		totalPieces,
 		totalLabor,
 		totalMargin,
+		totalMarginPieces,
+		totalTemps,
+		totalLaborWithTemps,
 		count: interventions.length
 	};
 }
