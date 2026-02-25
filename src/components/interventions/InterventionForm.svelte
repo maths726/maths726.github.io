@@ -11,6 +11,7 @@
     description: intervention?.description || '',
     date: intervention?.date || today,
     kilometrage: intervention?.kilometrage || '',
+    tempsTravail: intervention?.tempsTravail || '',
     prixPieces: intervention?.prixPieces || '',
     mainDoeuvre: intervention?.mainDoeuvre || '',
     marge: intervention?.marge || '',
@@ -54,6 +55,10 @@
       newErrors.marge = 'Marge invalide'
     }
 
+    if (formData.tempsTravail && parseFloat(formData.tempsTravail) < 0) {
+      newErrors.tempsTravail = 'Temps invalide'
+    }
+
     errors = newErrors
     return Object.keys(newErrors).length === 0
   }
@@ -73,6 +78,7 @@
       await onSubmit?.({
         ...formData,
         kilometrage: formData.kilometrage ? parseInt(formData.kilometrage) : 0,
+        tempsTravail: formData.tempsTravail ? parseFloat(formData.tempsTravail) : null,
         prixPieces: formData.prixPieces ? parseFloat(formData.prixPieces) : null,
         mainDoeuvre: formData.mainDoeuvre ? parseFloat(formData.mainDoeuvre) : null,
         marge: formData.marge ? parseFloat(formData.marge) : null,
@@ -213,6 +219,31 @@
       </div>
     </div>
 
+    <div class="form-group">
+      <label for="tempsTravail" class="form-label">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Temps de travail
+      </label>
+      <div class="input-with-suffix">
+        <input
+          type="number"
+          id="tempsTravail"
+          class="form-input"
+          class:error={errors.tempsTravail}
+          bind:value={formData.tempsTravail}
+          placeholder="1.5"
+          min="0"
+          step="0.1"
+        />
+        <span class="input-suffix">h</span>
+      </div>
+      {#if errors.tempsTravail}
+        <span class="form-error">{errors.tempsTravail}</span>
+      {/if}
+    </div>
   </div>
 
   <div class="form-group price-section">
@@ -263,7 +294,7 @@
         {/if}
       </div>
       <div class="price-field">
-        <label for="marge" class="price-label">Marge</label>
+        <label for="marge" class="price-label">Marge pièces</label>
         <div class="input-with-suffix">
           <input
             type="number"

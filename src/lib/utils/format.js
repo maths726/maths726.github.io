@@ -75,3 +75,8 @@ export function formatMiseEnCirculation(mois, annee) {
                     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
   return `${moisNoms[mois - 1]} ${annee}`
 }
+
+export function formatTemps(heures) {
+  if (heures === null || heures === undefined || heures === 0) return ''
+  return heures % 1 === 0 ? `${heures.toFixed(0)}h` : `${heures.toFixed(1)}h`
+}

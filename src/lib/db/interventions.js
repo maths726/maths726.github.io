@@ -77,6 +77,7 @@ export async function addIntervention(interventionData) {
     prixPieces: interventionData.prixPieces || null,
     mainDoeuvre: interventionData.mainDoeuvre || null,
     marge: interventionData.marge || null,
+    tempsTravail: interventionData.tempsTravail ?? null,
     pieces: interventionData.pieces || [],
     statut: interventionData.statut || 'en_cours',
     notes: interventionData.notes?.trim() || '',
