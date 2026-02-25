@@ -3,8 +3,12 @@
 
   let { componentData = [] } = $props()
 
+  // Filtrer les éléments qui ne sont pas des totaux calculés
+  const displayData = $derived(componentData.filter(item => !item.isTotal))
+  const marginTotalData = $derived(componentData.find(item => item.isTotal))
+
   const calculateTotal = () => {
-    return componentData.reduce((sum, item) => sum + (item.value || 0), 0)
+    return displayData.reduce((sum, item) => sum + (item.value || 0), 0)
   }
 
   const getBarColor = (index) => {
@@ -27,7 +31,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each componentData as item, index (index)}
+          {#each displayData as item, index (index)}
             <tr class="table-row">
               <td class="component-name">{item.name}</td>
               <td class="text-right">{formatPrice(item.value)}</td>
@@ -35,10 +39,17 @@
             </tr>
           {/each}
           <tr class="table-row total-row">
-            <td class="component-name"><strong>Total</strong></td>
+            <td class="component-name"><strong>Total CA</strong></td>
             <td class="text-right"><strong>{formatPrice(calculateTotal())}</strong></td>
             <td class="text-right"><strong>100%</strong></td>
           </tr>
+          {#if marginTotalData}
+            <tr class="table-row margin-row">
+              <td class="component-name"><strong>{marginTotalData.name}</strong></td>
+              <td class="text-right"><strong>{formatPrice(marginTotalData.value)}</strong></td>
+              <td class="text-right"><strong>{marginTotalData.percent?.toFixed(1) || 0}%</strong></td>
+            </tr>
+          {/if}
         </tbody>
       </table>
     </div>
@@ -49,7 +60,7 @@
     <h3 class="section-title">Comparaison visuelle</h3>
     <div class="chart-container">
       <div class="bars-wrapper">
-        {#each componentData as item, index (index)}
+        {#each displayData as item, index (index)}
           <div class="bar-item">
             <div class="bar-label">
               <span class="label-name">{item.name}</span>
@@ -64,6 +75,21 @@
             <div class="bar-percent">{item.percent?.toFixed(1) || 0}%</div>
           </div>
         {/each}
+        {#if marginTotalData}
+          <div class="bar-item margin-total-bar">
+            <div class="bar-label">
+              <span class="label-name">{marginTotalData.name}</span>
+              <span class="label-value">{formatPrice(marginTotalData.value)}</span>
+            </div>
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: {marginTotalData.percent || 0}%; background-color: #10B981;"
+              ></div>
+            </div>
+            <div class="bar-percent">{marginTotalData.percent?.toFixed(1) || 0}%</div>
+          </div>
+        {/if}
       </div>
     </div>
   </div>
@@ -140,8 +166,20 @@
   .total-row {
     background: linear-gradient(to right, rgba(0, 102, 177, 0.05), rgba(0, 102, 177, 0.02));
     border-top: 2px solid var(--border-color);
+    font-weight: 600;
+  }
+
+  .margin-row {
+    background: linear-gradient(to right, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+    border-top: 1px dashed var(--border-color);
     border-bottom: 2px solid var(--border-color);
     font-weight: 600;
+  }
+
+  .margin-total-bar {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border-color);
   }
 
   .component-name {

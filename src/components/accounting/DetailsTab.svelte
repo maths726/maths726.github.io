@@ -34,6 +34,11 @@
            (Number(intervention.marge) || 0)
   }
 
+  // Calculer la marge totale (marge pièces + main d'œuvre)
+  function getMargeTotal(intervention) {
+    return (Number(intervention.marge) || 0) + (Number(intervention.mainDoeuvre) || 0)
+  }
+
   // Tri des données
   let sortedInterventions = $derived.by(() => {
     let sorted = [...interventions]
@@ -69,6 +74,10 @@
         case 'marge':
           aVal = Number(a.marge) || 0
           bVal = Number(b.marge) || 0
+          break
+        case 'margeTotal':
+          aVal = getMargeTotal(a)
+          bVal = getMargeTotal(b)
           break
         case 'total':
           aVal = getTotal(a)
@@ -112,7 +121,7 @@
   function exportCSV() {
     if (!sortedInterventions.length) return
 
-    const headers = ['Date', 'Client', 'Véhicule', 'Type', 'Pièces', 'Main d\'œuvre', 'Marge', 'Total']
+    const headers = ['Date', 'Client', 'Véhicule', 'Type', 'Pièces', 'Main d\'œuvre', 'Marge pièces', 'Marge totale', 'Total']
     const rows = sortedInterventions.map(item => [
       formatDate(item.date),
       getClientName(item.clientId),
@@ -121,6 +130,7 @@
       Number(item.prixPieces) || 0,
       Number(item.mainDoeuvre) || 0,
       Number(item.marge) || 0,
+      getMargeTotal(item),
       getTotal(item)
     ])
 
@@ -182,7 +192,10 @@
                 MO <span class="sort-icon">{getSortIcon('mo')}</span>
               </th>
               <th class="sortable text-right" onclick={() => handleSort('marge')}>
-                Marge <span class="sort-icon">{getSortIcon('marge')}</span>
+                Marge P. <span class="sort-icon">{getSortIcon('marge')}</span>
+              </th>
+              <th class="sortable text-right" onclick={() => handleSort('margeTotal')}>
+                Marge T. <span class="sort-icon">{getSortIcon('margeTotal')}</span>
               </th>
               <th class="sortable text-right" onclick={() => handleSort('total')}>
                 Total <span class="sort-icon">{getSortIcon('total')}</span>
@@ -200,7 +213,8 @@
                 </td>
                 <td class="text-right">{formatPrice(item.prixPieces)}</td>
                 <td class="text-right">{formatPrice(item.mainDoeuvre)}</td>
-                <td class="text-right marge-cell">{formatPrice(item.marge)}</td>
+                <td class="text-right">{formatPrice(item.marge)}</td>
+                <td class="text-right marge-cell">{formatPrice(getMargeTotal(item))}</td>
                 <td class="text-right total-cell">{formatPrice(getTotal(item))}</td>
               </tr>
             {/each}
