@@ -87,7 +87,7 @@
   }
 
   .main-content {
-    padding-bottom: 5rem;
+    padding-bottom: 6rem;
   }
 
   .toolbar {

@@ -89,11 +89,21 @@
 
   .nav-container {
     display: flex;
-    justify-content: space-around;
+    justify-content: flex-start;
     padding: 0.75rem 0.5rem 0.5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .nav-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
   }
 
   .nav-item {
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     align-items: center;

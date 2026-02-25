@@ -112,12 +112,15 @@
     <main class="main-content">
       <section class="vehicule-info">
         <div class="info-header">
-          <div class="vehicule-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
-              <circle cx="6.5" cy="16.5" r="2.5"/>
-              <circle cx="16.5" cy="16.5" r="2.5"/>
-            </svg>
+          <div class="vehicule-identity">
+            <div class="vehicule-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                <circle cx="6.5" cy="16.5" r="2.5"/>
+                <circle cx="16.5" cy="16.5" r="2.5"/>
+              </svg>
+            </div>
+            <h2 class="vehicule-name">{vehicule.marque} {vehicule.modele}</h2>
           </div>
           <div class="info-actions">
             <button class="action-btn" onclick={() => showEditModal = true}>
@@ -262,6 +265,12 @@
     margin-bottom: 1rem;
   }
 
+  .vehicule-identity {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
   .vehicule-icon {
     width: 64px;
     height: 64px;
@@ -271,6 +280,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .vehicule-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
   }
 
   .info-actions {

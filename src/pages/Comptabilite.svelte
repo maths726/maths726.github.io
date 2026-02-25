@@ -208,7 +208,7 @@
 
   .main-content {
     padding: 1rem;
-    padding-bottom: 5rem;
+    padding-bottom: 7rem;
     max-width: 1200px;
     margin: 0 auto;
   }
